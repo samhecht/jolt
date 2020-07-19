@@ -51,6 +51,8 @@ flutter:
   
   assets:
     - assets/images/headshot.jpg
+    - assets/images/wave.png
+    - assets/images/wink.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

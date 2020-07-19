@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
+import './discovery_feed.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -48,6 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Text('Submit'),
                 onPressed: () {
                   print('username: ' + username + ', password: ' + password);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DiscoveryFeed()),
+                  );
                 }),
           ],
         ),

@@ -13,16 +13,27 @@ class JolterListView extends StatelessWidget {
         shrinkWrap: true,
         padding: const EdgeInsets.all(8),
         children: <Widget>[
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
-          JolterListEntry(),
+          JolterListEntry(
+            name: 'Sammy',
+          ),
+          JolterListEntry(
+            name: 'Sammy',
+          ),
+          JolterListEntry(
+            name: 'Sammy',
+          ),
+          JolterListEntry(
+            name: 'Sammy',
+          ),
+          JolterListEntry(
+            name: 'Sammy',
+          ),
+          JolterListEntry(
+            name: 'Sammy',
+          ),
+          JolterListEntry(
+            name: 'Sammy',
+          ),
         ],
       ),
     );
