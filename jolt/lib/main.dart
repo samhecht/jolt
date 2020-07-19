@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import './jolter_selected_screen.dart';
-import './discovery_feed.dart';
 import './login.dart';
 
 void main() {

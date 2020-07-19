@@ -51,7 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   print('username: ' + username + ', password: ' + password);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DiscoveryFeed()),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            DiscoveryFeed(username: username)),
                   );
                 }),
           ],
