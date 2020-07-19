@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "701832841272",
+    "firebase_url": "https://jolt-a140c.firebaseio.com",
+    "project_id": "jolt-a140c",
+    "storage_bucket": "jolt-a140c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701832841272:android:3bcc5296d4a4a2b54c7ecd",
+        "android_client_info": {
+          "package_name": "com.jolt.jolt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "701832841272-ka28kpabmtoic1491dpibe7c366n7iae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhMRR_aWVUNjdOc18AIA8A1RwXnWwIves"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701832841272-ka28kpabmtoic1491dpibe7c366n7iae.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "701832841272-t85e6cv7cquhg0aamaqcagv2tadnnb8r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jolt.jolt"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

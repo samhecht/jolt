@@ -4,17 +4,17 @@ import 'package:flutter/cupertino.dart';
 import './discovery_feed.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './authentication.dart';
-import './signup.dart';
+import './login.dart';
 
-class LoginScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   final VoidCallback loginCallback;
   final BaseAuth auth;
-  LoginScreen({@required this.loginCallback, @required this.auth});
+  SignUpScreen({@required this.loginCallback, @required this.auth});
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   String username = '';
 
   String password = '';
@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Discovery Feed'),
+        title: Text('Sign up'),
       ),
       body: Container(
         margin: const EdgeInsets.only(left: 20.0, right: 20.0),
@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: <Widget>[
             Padding(
               child: Text(
-                'Login to Jolt!',
+                'Sign up for Jolt!',
                 style: TextStyle(fontSize: 20),
               ),
               padding: EdgeInsets.only(bottom: 10, top: 10),
@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 try {
                   print('username: ' + username + ', password: ' + password);
                   String userId =
-                      await widget.auth.signIn(username.trim(), password);
+                      await widget.auth.signUp(username.trim(), password);
                   print('signed up user ' + userId);
                   widget.loginCallback();
                 } catch (e) {
@@ -66,16 +66,14 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             ),
             CupertinoButton(
-              child: Text('Don\'t have an account? Sign up!'),
-              onPressed: () {
+              child: Text('Already have an account? Login!'),
+              onPressed: () async {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SignUpScreen(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LoginScreen(
                             auth: widget.auth,
-                            loginCallback: widget.loginCallback,
-                          )),
-                );
+                            loginCallback: widget.loginCallback)));
               },
             ),
           ],
