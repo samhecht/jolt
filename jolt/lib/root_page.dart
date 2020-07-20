@@ -27,6 +27,7 @@ class _RootPageState extends State<RootPage> {
       });
     });
     setState(() {
+      print('are we getting here?');
       authStatus = AuthStatus.LOGGED_IN;
     });
   }
@@ -59,10 +60,18 @@ class _RootPageState extends State<RootPage> {
         return Container();
         break;
       case AuthStatus.LOGGED_IN:
-        return DiscoveryFeed(username: _userId);
+        return DiscoveryFeed(
+          username: 'Sammy',
+          userId: _userId,
+          auth: widget.auth,
+          logoutCallback: logoutCallback,
+        );
         break;
       case AuthStatus.NOT_LOGGED_IN:
-        return LoginScreen(loginCallback: loginCallback, auth: widget.auth);
+        return LoginScreen(
+          loginCallback: loginCallback,
+          auth: widget.auth,
+        );
         break;
       default:
         return Container();

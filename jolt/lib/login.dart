@@ -56,10 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   print('username: ' + username + ', password: ' + password);
                   String userId =
                       await widget.auth.signIn(username.trim(), password);
-                  print('signed up user ' + userId);
+                  print('logging in ' + userId);
                   widget.loginCallback();
                 } catch (e) {
-                  print(e);
+                  print('Error logging in: ' + e.message);
                 }
               },
             ),

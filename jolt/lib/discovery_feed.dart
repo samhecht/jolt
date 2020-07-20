@@ -5,10 +5,20 @@ import './size_config.dart';
 import './jolt_app_bar.dart';
 import './jolter_list_view.dart';
 import 'package:geolocator/geolocator.dart';
+import './authentication.dart';
 
 class DiscoveryFeed extends StatefulWidget {
+  // we'll get the name from the db at some point, for now just set it to sammy
   final String username;
-  DiscoveryFeed({@required this.username});
+  final String userId;
+  final BaseAuth auth;
+  final VoidCallback logoutCallback;
+  DiscoveryFeed({
+    @required this.username,
+    @required this.userId,
+    @required this.auth,
+    @required this.logoutCallback,
+  });
 
   @override
   _DiscoveryFeedState createState() => _DiscoveryFeedState();
@@ -61,6 +71,7 @@ class _DiscoveryFeedState extends State<DiscoveryFeed> {
         onPressed: () {},
         child: null,
         title: null,
+        logoutCallback: widget.logoutCallback,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

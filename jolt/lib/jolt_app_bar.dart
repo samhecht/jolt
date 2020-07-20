@@ -5,15 +5,17 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget child;
   final Function onPressed;
   final Function onTitleTapped;
+  final VoidCallback logoutCallback;
 
   @override
   final Size preferredSize;
-  JoltAppBar(
-      {@required this.title,
-      @required this.child,
-      @required this.onPressed,
-      this.onTitleTapped})
-      : preferredSize = Size.fromHeight(60.0);
+  JoltAppBar({
+    @required this.title,
+    @required this.child,
+    @required this.onPressed,
+    this.onTitleTapped,
+    this.logoutCallback,
+  }) : preferredSize = Size.fromHeight(60.0);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,12 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
               Icons.home,
               size: 60,
             ),
-            onPressed: () {},
+            onPressed: () {
+              if (logoutCallback != null) {
+                print('logging out, this wont be desired behavior');
+                logoutCallback();
+              }
+            },
           )
         ],
       ),
