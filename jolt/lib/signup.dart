@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 import './authentication.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -18,8 +21,15 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   String username = '';
-
   String password = '';
+  String email = '';
+  String birthDate = '';
+  String phoneNumber = '';
+  // keep as a string in case we want to add to this
+  // maybe an enum would be better
+  String gender = '';
+
+  File profilePicture;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Padding(
               child: CupertinoTextField(
                 onChanged: (value) {
-                  username = value;
+                  email = value;
                 },
               ),
               padding: EdgeInsets.only(bottom: 5),
@@ -53,13 +63,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 password = value;
               },
             ),
+            CupertinoTextField(
+              onChanged: (value) {
+                username = value;
+              },
+            ),
+            CupertinoTextField(
+              onChanged: (value) {
+                phoneNumber = value;
+              },
+            ),
+            CupertinoTextField(
+              onChanged: (value) {
+                birthDate = value;
+              },
+            ),
+            CupertinoTextField(
+              onChanged: (value) {
+                gender = value;
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.camera),
+              onPressed: () async {
+                final picturePicked =
+                    await ImagePicker().getImage(source: ImageSource.camera);
+                profilePicture = File(picturePicked.path);
+              },
+            ),
             CupertinoButton(
               child: Text('Submit'),
               onPressed: () async {
                 try {
-                  print('username: ' + username + ', password: ' + password);
+                  print(
+                      '$email, $password, $username, $birthDate, $gender, $phoneNumber, $profilePicture');
                   String userId =
-                      await widget.auth.signUp(username.trim(), password);
+                      await widget.auth.signUp(email.trim(), password);
                   print('signed up user ' + userId);
                   widget.loginCallback();
                 } catch (e) {

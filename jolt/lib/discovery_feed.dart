@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:geolocator/geolocator.dart';
+
 import './location_available.dart';
 import './size_config.dart';
 import './jolt_app_bar.dart';
 import './jolter_list_view.dart';
-import 'package:geolocator/geolocator.dart';
 import './authentication.dart';
 
 class DiscoveryFeed extends StatefulWidget {
@@ -56,7 +57,7 @@ class _DiscoveryFeedState extends State<DiscoveryFeed> {
 
       setState(() {
         _currentAddress =
-            "${place.locality}, ${place.postalCode}, ${place.country}";
+            '${place.subThoroughfare} ${place.thoroughfare}, ${place.locality}, ${place.administrativeArea}';
       });
     } catch (e) {
       print(e);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import './size_config.dart';
 
 class LocationAvailable extends StatefulWidget {
@@ -29,8 +30,7 @@ class _LocationAvailableState extends State<LocationAvailable> {
                 borderRadius: BorderRadius.circular(50),
               ),
             ),
-            onTap: () {
-              print('tapped location available');
+            onTap: () async {
               setState(() {
                 locationAvailable = !locationAvailable;
               });
