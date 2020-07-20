@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
 import './authentication.dart';
-import './login.dart';
 
 class SignUpScreen extends StatefulWidget {
   final VoidCallback loginCallback;
   final BaseAuth auth;
-  SignUpScreen({@required this.loginCallback, @required this.auth});
+  final VoidCallback toggleLoginScreen;
+  SignUpScreen({
+    @required this.loginCallback,
+    @required this.auth,
+    @required this.toggleLoginScreen,
+  });
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -65,13 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             CupertinoButton(
               child: Text('Already have an account? Login!'),
-              onPressed: () async {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => LoginScreen(
-                            auth: widget.auth,
-                            loginCallback: widget.loginCallback)));
+              onPressed: () {
+                widget.toggleLoginScreen();
               },
             ),
           ],

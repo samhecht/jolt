@@ -91,9 +91,11 @@ class _DiscoveryFeedState extends State<DiscoveryFeed> {
                   fontFamily: 'Schoolbell-Regular',
                 ),
               )),
-          Container(
-            width: double.infinity,
-            child: JolterListView(),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              child: JolterListView(),
+            ),
           )
         ],
       ),

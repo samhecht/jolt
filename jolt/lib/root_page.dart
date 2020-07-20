@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import './authentication.dart';
 import './discovery_feed.dart';
-import './login.dart';
+import './login_signup_root.dart';
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -41,6 +41,7 @@ class _RootPageState extends State<RootPage> {
 
   @override
   void initState() {
+    print('in init state $authStatus');
     super.initState();
     widget.auth.getCurrentUser().then((user) {
       setState(() {
@@ -68,7 +69,7 @@ class _RootPageState extends State<RootPage> {
         );
         break;
       case AuthStatus.NOT_LOGGED_IN:
-        return LoginScreen(
+        return LoginSignupRoot(
           loginCallback: loginCallback,
           auth: widget.auth,
         );
