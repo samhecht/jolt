@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Discovery Feed'),
+        title: Text('Login'),
       ),
       body: Container(
         margin: const EdgeInsets.only(left: 20.0, right: 20.0),
