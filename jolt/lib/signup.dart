@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 import './authentication.dart';
+import './image_storage_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   final VoidCallback loginCallback;
@@ -100,6 +101,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   String userId =
                       await widget.auth.signUp(email.trim(), password);
                   print('signed up user ' + userId);
+                  ImageStorageResult result = await ImageStorageService()
+                      .uploadImage(
+                          imageToUpload: profilePicture, userId: email);
+                  print(result.imageUrl);
                   widget.loginCallback();
                 } catch (e) {
                   print(e);
