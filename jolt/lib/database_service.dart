@@ -16,9 +16,10 @@ class DatabaseService {
     @required String gender,
     @required String email,
     @required String location,
+    @required String userId,
   }) async {
     try {
-      await _databaseReference.collection("users").add({
+      await _databaseReference.collection("users").document(userId).setData({
         'name': name,
         'birthDate': birthDate,
         'phoneNumber': phoneNumber,

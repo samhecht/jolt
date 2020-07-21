@@ -6,7 +6,7 @@ import './size_config.dart';
 import './database_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback loginCallback;
+  final Function(bool signUp) loginCallback;
   final BaseAuth auth;
   final VoidCallback toggleLoginScreen;
   LoginScreen({
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         String userId =
                             await widget.auth.signIn(email.trim(), password);
                         print('logging in ' + userId);
-                        widget.loginCallback();
+                        widget.loginCallback(false);
                       } catch (e) {
                         print('Error logging in: ' + e.message);
                       }

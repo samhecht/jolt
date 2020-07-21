@@ -7,10 +7,9 @@ import 'dart:io';
 import './authentication.dart';
 import './image_storage_service.dart';
 import './size_config.dart';
-import './database_service.dart';
 
 class SignUpScreen extends StatefulWidget {
-  final VoidCallback loginCallback;
+  final Function(bool signUp) loginCallback;
   final BaseAuth auth;
   final VoidCallback toggleLoginScreen;
   SignUpScreen({
@@ -172,15 +171,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           .uploadImage(
                               imageToUpload: profilePicture, userId: email);
                       print(result.imageUrl);
-                      DatabaseService().insertUser(
-                        name: name,
-                        birthDate: birthDate,
-                        phoneNumber: phoneNumber,
-                        gender: gender,
-                        email: email,
-                        location: null,
-                      );
-                      widget.loginCallback();
+                      // got to find a way to get the userId in here
+                      // DatabaseService().insertUser(
+                      //   name: name,
+                      //   birthDate: birthDate,
+                      //   phoneNumber: phoneNumber,
+                      //   gender: gender,
+                      //   email: email,
+                      //   location: null,
+                      // );
+                      // pass sign up data to loginCallback to get userId
+                      widget.loginCallback(true);
                     } catch (e) {
                       print(e);
                     }

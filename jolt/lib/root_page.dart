@@ -20,7 +20,7 @@ class _RootPageState extends State<RootPage> {
   AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = "";
 
-  void loginCallback() {
+  void loginCallback(bool signUp) {
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         _userId = user.uid.toString();
