@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
 import './authentication.dart';
+import './size_config.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback loginCallback;
@@ -17,63 +18,94 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String username = '';
+  String email = '';
 
   String password = '';
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
       ),
       body: Container(
-        margin: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              child: Text(
-                'Login to Jolt!',
-                style: TextStyle(fontSize: 20),
-              ),
-              padding: EdgeInsets.only(bottom: 10, top: 10),
+        width: SizeConfig.blockSizeHorizontal * 80,
+        margin: EdgeInsets.only(
+          left: SizeConfig.blockSizeHorizontal * 10,
+        ),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  child: Text(
+                    'Login to Jolt!',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  padding: EdgeInsets.only(bottom: 10, top: 10),
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'email@email.com',
+                  ),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    email = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    hintText: 'password',
+                  ),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    password = value;
+                  },
+                ),
+                CupertinoButton(
+                  child: Text('Submit'),
+                  onPressed: () async {
+                    if (_formKey.currentState.validate()) {
+                      try {
+                        print('username: ' + email + ', password: ' + password);
+                        String userId =
+                            await widget.auth.signIn(email.trim(), password);
+                        print('logging in ' + userId);
+                        widget.loginCallback();
+                      } catch (e) {
+                        print('Error logging in: ' + e.message);
+                      }
+                    } else {
+                      print('form invalid');
+                    }
+                  },
+                ),
+                CupertinoButton(
+                  child: Text('Don\'t have an account? Sign up!'),
+                  onPressed: () {
+                    widget.toggleLoginScreen();
+                  },
+                ),
+              ],
             ),
-            Padding(
-              child: CupertinoTextField(
-                onChanged: (value) {
-                  username = value;
-                },
-              ),
-              padding: EdgeInsets.only(bottom: 5),
-            ),
-            CupertinoTextField(
-              onChanged: (value) {
-                password = value;
-              },
-            ),
-            CupertinoButton(
-              child: Text('Submit'),
-              onPressed: () async {
-                try {
-                  print('username: ' + username + ', password: ' + password);
-                  String userId =
-                      await widget.auth.signIn(username.trim(), password);
-                  print('logging in ' + userId);
-                  widget.loginCallback();
-                } catch (e) {
-                  print('Error logging in: ' + e.message);
-                }
-              },
-            ),
-            CupertinoButton(
-              child: Text('Don\'t have an account? Sign up!'),
-              onPressed: () {
-                widget.toggleLoginScreen();
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
