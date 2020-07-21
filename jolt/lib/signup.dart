@@ -7,6 +7,7 @@ import 'dart:io';
 import './authentication.dart';
 import './image_storage_service.dart';
 import './size_config.dart';
+import './database_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   final VoidCallback loginCallback;
@@ -22,7 +23,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  String username = '';
+  String name = '';
   String password = '';
   String email = '';
   String birthDate = '';
@@ -73,6 +74,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                   onChanged: (value) {
                     email = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    hintText: 'Full Name',
+                  ),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    name = value;
                   },
                 ),
                 TextFormField(
@@ -148,7 +164,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onPressed: () async {
                     try {
                       print(
-                          '$email, $password, $username, $birthDate, $gender, $phoneNumber, $profilePicture');
+                          '$email, $password, $name, $birthDate, $gender, $phoneNumber, $profilePicture');
                       String userId =
                           await widget.auth.signUp(email.trim(), password);
                       print('signed up user ' + userId);
@@ -156,6 +172,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           .uploadImage(
                               imageToUpload: profilePicture, userId: email);
                       print(result.imageUrl);
+                      DatabaseService().insertUser(
+                        name: name,
+                        birthDate: birthDate,
+                        phoneNumber: phoneNumber,
+                        gender: gender,
+                        email: email,
+                        location: null,
+                      );
                       widget.loginCallback();
                     } catch (e) {
                       print(e);
