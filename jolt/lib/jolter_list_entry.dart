@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import './size_config.dart';
 import './jolter_selected_screen.dart';
 
 class JolterListEntry extends StatelessWidget {
   final String name;
+  final String userId;
+  final String pictureUrl;
 
-  JolterListEntry({@required this.name});
+  JolterListEntry({
+    @required this.name,
+    @required this.userId,
+    @required this.pictureUrl,
+  });
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -37,13 +44,13 @@ class JolterListEntry extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image(
-                    image: AssetImage('assets/images/headshot.jpg'),
+                    image: CachedNetworkImageProvider(pictureUrl),
                   ),
                 )),
             Container(
               margin: EdgeInsets.only(left: 60),
               child: Text(
-                'Sammy',
+                name,
                 style:
                     TextStyle(fontSize: 30, fontFamily: 'Schoolbell-Regular'),
               ),

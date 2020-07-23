@@ -16,6 +16,7 @@ class ImageStorageService {
     var downloadUrl = await storageSnapshot.ref.getDownloadURL();
     if (uploadTask.isComplete) {
       var url = downloadUrl.toString();
+      // we wanna put the image url with the user documents in firestore
       return ImageStorageResult(
         imageUrl: url,
         imageFileName: userId,

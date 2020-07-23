@@ -7,6 +7,7 @@ import './size_config.dart';
 import './jolt_app_bar.dart';
 import './jolter_list_view.dart';
 import './authentication.dart';
+import './database_service.dart';
 
 class DiscoveryFeed extends StatefulWidget {
   // we'll get the name from the db at some point, for now just set it to sammy
@@ -26,41 +27,58 @@ class DiscoveryFeed extends StatefulWidget {
 }
 
 class _DiscoveryFeedState extends State<DiscoveryFeed> {
-  Position _currentPosition;
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   String _currentAddress;
+
   @override
   void initState() {
-    _getCurrentLocation();
+    () async {
+      try {
+        String address = await _getAddressFromLatLng();
+
+        setState(() {
+          _currentAddress = address;
+        });
+        writeAddressToDatabase();
+      } catch (e) {
+        print(e.message);
+      }
+    }();
     super.initState();
   }
 
-  _getCurrentLocation() {
-    geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-      });
-      _getAddressFromLatLng();
-    }).catchError((e) {
-      print(e);
-    });
+  _getCurrentLocation() async {
+    return await geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
   }
 
-  _getAddressFromLatLng() async {
+  Future<String> _getAddressFromLatLng() async {
     try {
+      Position currentPosition = await _getCurrentLocation();
       List<Placemark> p = await geolocator.placemarkFromCoordinates(
-          _currentPosition.latitude, _currentPosition.longitude);
+          currentPosition.latitude, currentPosition.longitude);
 
       Placemark place = p[0];
 
-      setState(() {
-        _currentAddress =
-            '${place.subThoroughfare} ${place.thoroughfare}, ${place.locality}, ${place.administrativeArea}';
-      });
+      String address =
+          '${place.subThoroughfare} ${place.thoroughfare}, ${place.locality}, ${place.administrativeArea}';
+      return address;
     } catch (e) {
       print(e);
+      return null;
+    }
+  }
+
+  void writeAddressToDatabase() async {
+    try {
+      if (!await DatabaseService().updateUserAddress(
+        userId: widget.userId,
+        newAddress: _currentAddress,
+      )) {
+        throw Exception('couldn\'t update user address');
+      }
+    } catch (e) {
+      print('couldn\'t write address to database $e.message');
     }
   }
 
@@ -95,7 +113,9 @@ class _DiscoveryFeedState extends State<DiscoveryFeed> {
           Expanded(
             child: Container(
               width: double.infinity,
-              child: JolterListView(),
+              child: JolterListView(
+                myCurrentAddress: _currentAddress,
+              ),
             ),
           )
         ],
