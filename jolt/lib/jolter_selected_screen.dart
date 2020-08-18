@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import './jolt_app_bar.dart';
 import './size_config.dart';
 
 class JolterSelectedScreen extends StatelessWidget {
   final String name;
-  JolterSelectedScreen({@required this.name});
+  final String userId;
+  final String pictureUrl;
+
+  JolterSelectedScreen({
+    @required this.name,
+    @required this.userId,
+    @required this.pictureUrl,
+  });
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -22,7 +31,7 @@ class JolterSelectedScreen extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(100),
                 child: Image(
-                  image: AssetImage('assets/images/headshot.jpg'),
+                  image: CachedNetworkImageProvider(pictureUrl),
                 ),
               ),
             ),

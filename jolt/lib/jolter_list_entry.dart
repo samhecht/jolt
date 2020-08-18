@@ -21,7 +21,11 @@ class JolterListEntry extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => JolterSelectedScreen(name: name)),
+              builder: (context) => JolterSelectedScreen(
+                    name: name,
+                    userId: userId,
+                    pictureUrl: pictureUrl,
+                  )),
         );
       },
       child: Container(

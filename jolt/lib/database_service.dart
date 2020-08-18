@@ -62,10 +62,11 @@ class DatabaseService {
             userId: user.documentID,
             gender: user['gender'],
             pictureUrl: user['pictureUrl'],
+            location: user['location'],
           );
           nearbyUsers[user.documentID] = currUser;
-          // maybe make a new map in here and call the intersection?
-          // users aren't getting deleted right now
+          // we may have to send a message to all users with the past know
+          // location that we have moved.
         });
         callback(nearbyUsers);
       },
@@ -106,6 +107,7 @@ class User {
   final String birthDate;
   final String userId;
   final String pictureUrl;
+  final String location;
 
   User({
     @required this.name,
@@ -115,5 +117,6 @@ class User {
     @required this.birthDate,
     @required this.userId,
     @required this.pictureUrl,
+    @required this.location,
   });
 }
