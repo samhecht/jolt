@@ -65,8 +65,7 @@ class DatabaseService {
             location: user['location'],
           );
           nearbyUsers[user.documentID] = currUser;
-          // we may have to send a message to all users with the past know
-          // location that we have moved.
+          // need to hook into events like deletes and whatnot
         });
         callback(nearbyUsers);
       },
