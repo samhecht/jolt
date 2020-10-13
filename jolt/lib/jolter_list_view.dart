@@ -32,6 +32,9 @@ class _JolterListViewState extends State<JolterListView> {
     super.didUpdateWidget(oldWidget);
   }
 
+  // maybe get an initial list on load, then pass a function to modify
+  // on firestore changes
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
