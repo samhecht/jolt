@@ -1,0 +1,27 @@
+Authentication:
+    Email -> uid
+Users:
+    uid->
+        -dob        -- string
+        -email      -- string
+        -gender     -- string
+        -location   -- string
+        -name       -- string
+        -phone      -- string
+        -pictureUrl -- string
+
+Messages:
+    uid->
+        array(uid) ->
+                    message ->
+                              body ->
+                                     Wave/Wink/Text
+
+Workflows:
+1. user1 winks at user2
+    1. user1 inserts message into user2 messages
+        1. push to uid1 array
+    2. user2 is notified about change in their messages
+        1. wink -> display wink notification -- removed when responded to
+        2. message -> appears in an inbox?
+
