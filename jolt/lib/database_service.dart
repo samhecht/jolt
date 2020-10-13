@@ -20,7 +20,7 @@ class DatabaseService {
     @required String email,
     @required String location,
     @required String userId,
-    @required String pictureUrl,
+    String pictureUrl,
   }) async {
     try {
       await _databaseReference.collection('users').document(userId).setData({
@@ -30,7 +30,8 @@ class DatabaseService {
         'gender': gender,
         'email': email,
         'location': location,
-        'pictureUrl': pictureUrl,
+        'pictureUrl':
+            pictureUrl != null ? pictureUrl : 'assets/images/wink.png',
       });
       return true;
     } catch (e) {
@@ -45,31 +46,61 @@ class DatabaseService {
     String myCurrentAddress,
     Function(Map<String, User>) callback,
   ) async {
-    print('curr addy $myCurrentAddress');
-    Map<String, User> nearbyUsers = new Map();
+//    print('curr addy $myCurrentAddress');
+//    Map<String, User> nearbyUsers = new Map();
+//    _databaseReference
+//        .collection('users')
+//        .where('location', isEqualTo: myCurrentAddress)
+//        .snapshots()
+//        .listen(
+//      (data) {
+//        data.documents.forEach((user) {
+//          User currUser = new User(
+//            name: user['name'],
+//            email: user['email'],
+//            phoneNumber: user['phoneNumber'],
+//            birthDate: user['birthDate'],
+//            userId: user.documentID,
+//            gender: user['gender'],
+//            pictureUrl: user['pictureUrl'],
+//            location: user['location'],
+//          );
+//          nearbyUsers[user.documentID] = currUser;
+//          // need to hook into events like deletes and whatnot
+//        });
+//        callback(nearbyUsers);
+//      },
+//    );
     _databaseReference
         .collection('users')
-        .where('location', isEqualTo: myCurrentAddress)
+        // .where('location', isEqualTo: myCurrentAddress)
         .snapshots()
-        .listen(
-      (data) {
-        data.documents.forEach((user) {
-          User currUser = new User(
-            name: user['name'],
-            email: user['email'],
-            phoneNumber: user['phoneNumber'],
-            birthDate: user['birthDate'],
-            userId: user.documentID,
-            gender: user['gender'],
-            pictureUrl: user['pictureUrl'],
-            location: user['location'],
-          );
-          nearbyUsers[user.documentID] = currUser;
-          // need to hook into events like deletes and whatnot
-        });
-        callback(nearbyUsers);
-      },
-    );
+        .listen((res) {
+      res.documentChanges.forEach((change) {
+        switch (change.type) {
+          case DocumentChangeType.added:
+            {
+              print('document added');
+            }
+            break;
+          case DocumentChangeType.removed:
+            {
+              print('document removed');
+            }
+            break;
+          case DocumentChangeType.modified:
+            {
+              print('document modified');
+            }
+            break;
+          default:
+            {
+              print('default case');
+            }
+            break;
+        }
+      });
+    });
   }
 
   // update a users address, returns true if it works

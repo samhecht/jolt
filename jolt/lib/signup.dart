@@ -151,14 +151,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     gender = value;
                   },
                 ),
-                IconButton(
-                  icon: Icon(Icons.camera),
-                  onPressed: () async {
-                    final picturePicked = await ImagePicker()
-                        .getImage(source: ImageSource.camera);
-                    profilePicture = File(picturePicked.path);
-                  },
-                ),
+//                IconButton(
+//                  icon: Icon(Icons.camera),
+//                  onPressed: () async {
+//                    final picturePicked = await ImagePicker()
+//                        .getImage(source: ImageSource.camera);
+//                    profilePicture = File(picturePicked.path);
+//                  },
+//                ),
                 CupertinoButton(
                   child: Text('Submit'),
                   onPressed: () async {
@@ -168,10 +168,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       String userId =
                           await widget.auth.signUp(email.trim(), password);
                       print('signed up user ' + userId);
-                      ImageStorageResult result = await ImageStorageService()
-                          .uploadImage(
-                              imageToUpload: profilePicture, userId: userId);
-                      print(result.imageUrl);
+//                      ImageStorageResult result = await ImageStorageService()
+//                          .uploadImage(
+//                              imageToUpload: profilePicture, userId: userId);
+//                      print(result.imageUrl);
                       // got to find a way to get the userId in here
                       DatabaseService().insertUser(
                         name: name,
@@ -181,7 +181,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         email: email,
                         location: null,
                         userId: userId,
-                        pictureUrl: result.imageUrl,
+                        pictureUrl: null/*result.imageUrl*/,
                       );
                       // pass sign up data to loginCallback to get userId
                       widget.loginCallback();

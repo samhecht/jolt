@@ -29,7 +29,7 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       width: double.infinity,
       height: 50,
-      margin: EdgeInsets.only(right: 20),
+      margin: EdgeInsets.only(right: 30, top: 30),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
@@ -39,8 +39,8 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
               size: 60,
             ),
             offset: Offset(
-              0,
-              100,
+             0,
+             100,
             ),
             onSelected: menuChoiceAction,
             itemBuilder: (BuildContext context) {

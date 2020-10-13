@@ -1,0 +1,3 @@
+1. Can add user to authentication but have scenarios where they aren't added to users table
+2. Need to make sure camera works on ios
+3. Logout button not working?
