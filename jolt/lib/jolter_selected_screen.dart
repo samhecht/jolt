@@ -24,10 +24,12 @@ class JolterSelectedScreen extends StatelessWidget {
         title: null,
       ),
       body: Container(
+        height: SizeConfig.blockSizeVertical * 100,
         child: Column(
           children: <Widget>[
             Container(
               width: SizeConfig.blockSizeHorizontal * 50,
+              height: SizeConfig.blockSizeVertical * 40,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(100),
                 child: Image(
@@ -37,6 +39,7 @@ class JolterSelectedScreen extends StatelessWidget {
             ),
             Container(
               width: double.infinity,
+              height: SizeConfig.blockSizeVertical * 10,
               alignment: Alignment.center,
               child: Text(
                 name,
@@ -46,7 +49,7 @@ class JolterSelectedScreen extends StatelessWidget {
             ),
             Container(
               width: SizeConfig.blockSizeHorizontal * 50,
-              height: 100,
+              height: SizeConfig.blockSizeVertical * 10,
               child: ConstrainedBox(
                 constraints: BoxConstraints.expand(),
                 child: RaisedButton(
@@ -62,7 +65,7 @@ class JolterSelectedScreen extends StatelessWidget {
             ),
             Container(
               width: SizeConfig.blockSizeHorizontal * 50,
-              height: 100,
+              height: SizeConfig.blockSizeVertical * 10,
               margin: EdgeInsets.only(top: 20),
               child: ConstrainedBox(
                 constraints: BoxConstraints.expand(),
