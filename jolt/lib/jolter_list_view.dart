@@ -25,18 +25,33 @@ class _JolterListViewState extends State<JolterListView> {
   // for now, attach a listner to track nearby users
   @override
   void didUpdateWidget(covariant JolterListView oldWidget) {
-    DatabaseService().listenForNearbyUsers(
-      widget.myCurrentAddress,
-      (Map<String, User> nearbyUsersReturned) => setState(() {
-        nearbyUsers = nearbyUsersReturned;
-      }),
-    );
-    DatabaseService().listenForChats(widget.userId,
-        (Map<String, dynamic> chatMap) {
-      print('chats changed');
-      print(chatMap);
-    });
+    if (widget.myCurrentAddress != oldWidget.myCurrentAddress) {
+      // unsubscribe previous listener
+      DatabaseService().unsubscribe(JoltTopic.nearbyUsers);
+
+      // subscribe with updated address
+      DatabaseService().subscribe(
+          JoltTopic.nearbyUsers,
+          (Map<String, User> nearbyUsersReturned) => setState(() {
+                // Don't include ourselves in the list
+                nearbyUsersReturned.remove(widget.userId);
+                nearbyUsers = nearbyUsersReturned;
+              }),
+          {'myCurrentAddress': widget.myCurrentAddress});
+    }
+
+    // DatabaseService().listenForChats(widget.userId,
+    //     (Map<String, dynamic> chatMap) {
+    //   print('chats changed');
+    //   print(chatMap);
+    // });
     super.didUpdateWidget(oldWidget);
+  }
+
+  @protected
+  void dispose() {
+    DatabaseService().unsubscribe(JoltTopic.nearbyUsers);
+    super.dispose();
   }
 
   @override

@@ -77,6 +77,7 @@ class JolterSelectedScreen extends StatelessWidget {
                 child: RaisedButton(
                   onPressed: () {
                     print('winked at ' + name);
+                    DatabaseService().wink(myUserId, userId);
                   },
                   color: Color(0xfff8f157),
                   child: Image(
