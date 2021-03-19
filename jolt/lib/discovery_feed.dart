@@ -115,6 +115,7 @@ class _DiscoveryFeedState extends State<DiscoveryFeed> {
               width: double.infinity,
               child: JolterListView(
                 myCurrentAddress: _currentAddress,
+                userId: widget.userId,
               ),
             ),
           )

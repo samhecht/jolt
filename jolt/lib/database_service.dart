@@ -32,6 +32,7 @@ class DatabaseService {
         'location': location,
         'pictureUrl': pictureUrl
       });
+      await initializeChat(userId);
       return true;
     } catch (e) {
       print('error adding document ${e.message}');
@@ -96,6 +97,46 @@ class DatabaseService {
         callback(nearbyUsers);
       });
     });
+  }
+
+  void listenForChats(String userId, Function(Map<String, dynamic>) callback) {
+    _databaseReference
+        .collection('chats')
+        // .document(userId)
+        // .collection('interactions')
+        // .snapshots()
+        .where('documentID', isEqualTo: userId)
+        .snapshots()
+        .listen((res) {
+      res.documentChanges.forEach((change) {
+        print('got a change');
+        if (change.type == DocumentChangeType.modified) {
+          callback(change.document.data);
+        }
+      });
+    });
+  }
+
+  Future<bool> wave(String idSource, String idTarget) async {
+    try {
+      await _databaseReference
+          .collection('chats')
+          .document(idTarget)
+          .updateData({
+        'interactions.$idSource': new DateTime.now().toString() + '+wave'
+      });
+      return true;
+    } catch (e) {
+      print('Couldn\'t wave at: $idTarget $e');
+      return false;
+    }
+  }
+
+  Future<void> initializeChat(String userId) {
+    return _databaseReference
+        .collection('chats')
+        .document(userId)
+        .setData({'chat': [], 'interactions': []});
   }
 
   // update a users address, returns true if it works

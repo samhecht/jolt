@@ -6,9 +6,11 @@ import './database_service.dart';
 class JolterListView extends StatefulWidget {
   // current address used to find nearby users
   final String myCurrentAddress;
+  final String userId;
 
   JolterListView({
     @required this.myCurrentAddress,
+    @required this.userId,
   });
   @override
   _JolterListViewState createState() => _JolterListViewState();
@@ -29,11 +31,13 @@ class _JolterListViewState extends State<JolterListView> {
         nearbyUsers = nearbyUsersReturned;
       }),
     );
+    DatabaseService().listenForChats(widget.userId,
+        (Map<String, dynamic> chatMap) {
+      print('chats changed');
+      print(chatMap);
+    });
     super.didUpdateWidget(oldWidget);
   }
-
-  // maybe get an initial list on load, then pass a function to modify
-  // on firestore changes
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +53,7 @@ class _JolterListViewState extends State<JolterListView> {
             name: user.value.name,
             userId: user.value.userId,
             pictureUrl: user.value.pictureUrl,
+            myUserId: widget.userId,
           );
         }).toList(),
       ),

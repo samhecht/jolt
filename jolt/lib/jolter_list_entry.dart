@@ -7,11 +7,13 @@ class JolterListEntry extends StatelessWidget {
   final String name;
   final String userId;
   final String pictureUrl;
+  final String myUserId;
 
   JolterListEntry({
     @required this.name,
     @required this.userId,
     @required this.pictureUrl,
+    @required this.myUserId,
   });
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ class JolterListEntry extends StatelessWidget {
                     name: name,
                     userId: userId,
                     pictureUrl: pictureUrl,
+                    myUserId: myUserId,
                   )),
         );
       },

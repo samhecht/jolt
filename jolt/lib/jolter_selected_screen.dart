@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import './jolt_app_bar.dart';
 import './size_config.dart';
+import './database_service.dart';
 
 class JolterSelectedScreen extends StatelessWidget {
   final String name;
   final String userId;
   final String pictureUrl;
+  final String myUserId;
 
   JolterSelectedScreen({
     @required this.name,
     @required this.userId,
     @required this.pictureUrl,
+    @required this.myUserId,
   });
 
   @override
@@ -54,7 +57,9 @@ class JolterSelectedScreen extends StatelessWidget {
                 constraints: BoxConstraints.expand(),
                 child: RaisedButton(
                   onPressed: () {
+                    // wave(myUserId, userId)
                     print('waved at ' + name);
+                    DatabaseService().wave(myUserId, userId);
                   },
                   color: Color(0xfff8f157),
                   child: Image(
