@@ -4,14 +4,31 @@ import './jolt_app_bar.dart';
 import './size_config.dart';
 import 'database_service.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   final String userId;
-  final List<JoltNotification> notifications = [];
+  final List<JoltNotification> notifications;
 
   NotificationsScreen({
     @required this.userId,
-  });
+    @required this.notifications,
+  }) {
+    notifications.sort((a, b) {
+      var timeA = DateTime.parse(a.timestamp);
+      var timeB = DateTime.parse(b.timestamp);
+      if (timeA.difference(timeB).inMinutes < 0) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+  }
 
+  @override
+  _NotificationsScreenState createState() => _NotificationsScreenState();
+}
+
+// this seems like it can be stateless
+class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -29,7 +46,7 @@ class NotificationsScreen extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 child: NotificationsListView(
-                  notifications: notifications,
+                  notifications: widget.notifications,
                 ),
               ),
             ),

@@ -1,10 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:jolt/received_wave_screen.dart';
 import './size_config.dart';
 import './database_service.dart';
 
 class NotificationsListEntry extends StatelessWidget {
   final JoltNotification notification;
+
+  Text notificationToString() {
+    String name = notification.fromUser.name;
+    DateTime timestamp = DateTime.parse(notification.timestamp);
+    int recency = DateTime.now().difference(timestamp).inMinutes;
+    String action = '';
+    switch (notification.type) {
+      case NotificationType.wave:
+        {
+          action = 'waved';
+        }
+        break;
+      case NotificationType.wink:
+        {
+          action = 'winked';
+        }
+        break;
+      case NotificationType.text:
+        {
+          action = 'texted';
+        }
+        break;
+      default:
+        {
+          action = 'waved';
+        }
+        break;
+    }
+    String textBody = '$name just $action at you! $recency minutes ago';
+    return Text(
+      textBody,
+      style: TextStyle(fontSize: 10, fontFamily: 'Schoolbell-Regular'),
+    );
+  }
 
   NotificationsListEntry({@required this.notification});
   @override
@@ -13,6 +48,16 @@ class NotificationsListEntry extends StatelessWidget {
     return InkWell(
       onTap: () {
         print('clicked a notification, should probably route to a screen');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReceivedWaveScreen(
+              receivedFrom: notification.fromUser.userId,
+              winked: notification.type == NotificationType.wink,
+              name: notification.fromUser.name,
+            ),
+          ),
+        );
       },
       child: Container(
         width: SizeConfig.safeBlockHorizontal * 80,
@@ -39,12 +84,8 @@ class NotificationsListEntry extends StatelessWidget {
                   ),
                 )),
             Container(
-              margin: EdgeInsets.only(left: 60),
-              child: Text(
-                notification.fromUser.name,
-                style:
-                    TextStyle(fontSize: 30, fontFamily: 'Schoolbell-Regular'),
-              ),
+              margin: EdgeInsets.only(),
+              child: notificationToString(),
             ),
           ],
         ),

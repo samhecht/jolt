@@ -11,11 +11,11 @@ import './authentication.dart';
 import './database_service.dart';
 
 class DiscoveryFeed extends StatefulWidget {
-  // we'll get the name from the db at some point, for now just set it to sammy
   final String username;
   final String userId;
   final BaseAuth auth;
   final VoidCallback logoutCallback;
+
   DiscoveryFeed({
     @required this.username,
     @required this.userId,
@@ -30,57 +30,53 @@ class DiscoveryFeed extends StatefulWidget {
 class _DiscoveryFeedState extends State<DiscoveryFeed> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   String _currentAddress;
+  List<JoltNotification> notifications = [];
 
   @override
   void initState() {
-    () async {
-      try {
-        String address = await _getAddressFromLatLng();
-
-        setState(() {
+    // Update the address
+    DatabaseService().updateUserAddress(
+      userId: widget.userId,
+      callback: (String address) => setState(
+        () {
           _currentAddress = address;
-        });
-        writeAddressToDatabase();
-      } catch (e) {
-        print(e.message);
-      }
-    }();
+        },
+      ),
+    );
+
+    // Subscribe for wave updates
+    DatabaseService().subscribe(
+      JoltTopic.wave,
+      (List<JoltNotification> waves) => setState(
+        () {
+          print('got some waves');
+          notifications = [...notifications, ...waves];
+        },
+      ),
+      {'userId': widget.userId},
+    );
+
+    // Subscribe for wink updates
+    DatabaseService().subscribe(
+      JoltTopic.wink,
+      (List<JoltNotification> waves) => setState(
+        () {
+          print('got some winks');
+          notifications = [...notifications, ...waves];
+        },
+      ),
+      {'userId': widget.userId},
+    );
+
     super.initState();
   }
 
-  _getCurrentLocation() async {
-    return await geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
-  }
+  @override
+  void dispose() {
+    DatabaseService().unsubscribe(JoltTopic.wave);
+    DatabaseService().unsubscribe(JoltTopic.wink);
 
-  Future<String> _getAddressFromLatLng() async {
-    try {
-      Position currentPosition = await _getCurrentLocation();
-      List<Placemark> p = await geolocator.placemarkFromCoordinates(
-          currentPosition.latitude, currentPosition.longitude);
-
-      Placemark place = p[0];
-
-      String address =
-          '${place.subThoroughfare} ${place.thoroughfare}, ${place.locality}, ${place.administrativeArea}';
-      return address;
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  void writeAddressToDatabase() async {
-    try {
-      if (!await DatabaseService().updateUserAddress(
-        userId: widget.userId,
-        newAddress: _currentAddress,
-      )) {
-        throw Exception('couldn\'t update user address');
-      }
-    } catch (e) {
-      print('couldn\'t write address to database $e.message');
-    }
+    super.dispose();
   }
 
   @override
@@ -96,8 +92,11 @@ class _DiscoveryFeedState extends State<DiscoveryFeed> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    NotificationsScreen(userId: widget.userId)),
+              builder: (context) => NotificationsScreen(
+                userId: widget.userId,
+                notifications: notifications,
+              ),
+            ),
           );
         },
       ),

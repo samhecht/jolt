@@ -7,10 +7,11 @@ class ReceivedWaveScreen extends StatelessWidget {
   final bool winked;
   final String name;
 
-  ReceivedWaveScreen(
-      {@required this.receivedFrom,
-      @required this.winked,
-      @required this.name});
+  ReceivedWaveScreen({
+    @required this.receivedFrom,
+    @required this.winked,
+    @required this.name,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,7 @@ class ReceivedWaveScreen extends StatelessWidget {
                     constraints: BoxConstraints.expand(),
                     child: RaisedButton(
                       onPressed: () {
-                        print('waved at ' + name);
+                        print('waved back at $name');
                       },
                       color: Color(0xfff8f157),
                       child: Image(
@@ -76,7 +77,9 @@ class ReceivedWaveScreen extends StatelessWidget {
                   child: ConstrainedBox(
                     constraints: BoxConstraints.expand(),
                     child: RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        print('winked back at $name');
+                      },
                       color: Color(0xfff8f157),
                       child: Image(
                         image: AssetImage('assets/images/wink.png'),

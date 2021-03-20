@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meta/meta.dart';
 import 'dart:async';
+import 'package:geolocator/geolocator.dart';
 
 // class that widgets can import to perform operations on the database
 class DatabaseService {
   static final DatabaseService _database = DatabaseService._internal();
   final _databaseReference = Firestore.instance;
+  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   StreamSubscription<QuerySnapshot> _nearbyUsersSubscription;
   List<StreamSubscription<QuerySnapshot>> _chatSubscriptions;
   StreamSubscription<QuerySnapshot> _waveSubscription;
@@ -247,7 +249,7 @@ class DatabaseService {
       Map<String, String> arguments,
       Function(List<JoltNotification>) callback) {
     String userId;
-    List<JoltNotification> waves;
+    List<JoltNotification> waves = [];
     if (arguments.containsKey('userId')) {
       // conversation ids will be supplied delimited by ';'
       userId = arguments['userId'];
@@ -259,14 +261,15 @@ class DatabaseService {
         .collection('interactions/$userId/interactions')
         .snapshots()
         .listen((res) {
-      res.documentChanges.forEach((change) {
+      res.documentChanges.forEach((change) async {
         if (change.document.data['interactionType'] == 'wave') {
           switch (change.type) {
             case DocumentChangeType.added:
               {
                 waves.add(new JoltNotification(
-                  fromUser: change.document.data['incomingUserId'],
-                  type: change.document.data['interactionType'],
+                  fromUser:
+                      await getUser(change.document.data['incomingUserId']),
+                  type: NotificationType.wave,
                   timestamp: change.document.data['timestamp'],
                   acked: change.document.data['acked'],
                 ));
@@ -303,7 +306,7 @@ class DatabaseService {
       Map<String, String> arguments,
       Function(List<JoltNotification>) callback) {
     String userId;
-    List<JoltNotification> winks;
+    List<JoltNotification> winks = [];
     if (arguments.containsKey('userId')) {
       // conversation ids will be supplied delimited by ';'
       userId = arguments['userId'];
@@ -315,14 +318,15 @@ class DatabaseService {
         .collection('interactions/$userId/interactions')
         .snapshots()
         .listen((res) {
-      res.documentChanges.forEach((change) {
+      res.documentChanges.forEach((change) async {
         if (change.document.data['interactionType'] == 'wink') {
           switch (change.type) {
             case DocumentChangeType.added:
               {
                 winks.add(new JoltNotification(
-                  fromUser: change.document.data['incomingUserId'],
-                  type: change.document.data['interactionType'],
+                  fromUser:
+                      await getUser(change.document.data['incomingUserId']),
+                  type: NotificationType.wink,
                   timestamp: change.document.data['timestamp'],
                   acked: change.document.data['acked'],
                 ));
@@ -369,6 +373,25 @@ class DatabaseService {
       print('Couldn\'t wave at: $idTarget $e');
       return false;
     }
+  }
+
+  Future<User> getUser(String userId) async {
+    DocumentSnapshot doc =
+        await _databaseReference.document('users/$userId').get();
+    var user = doc.data;
+    User currUser = new User(
+      name: user['name'],
+      email: user['email'],
+      phoneNumber: user['phoneNumber'],
+      birthDate: user['birthDate'],
+      userId: doc.documentID,
+      gender: user['gender'],
+      pictureUrl: user['pictureUrl'],
+      location: user['location'],
+      conversations: user['conversations'],
+    );
+
+    return currUser;
   }
 
   // send a wink to another user
@@ -430,17 +453,44 @@ class DatabaseService {
   // update a users address, returns true if it works
   Future<bool> updateUserAddress({
     @required String userId,
-    @required String newAddress,
+    Function(String) callback,
   }) async {
+    String newAddress = await _getAddressFromLatLng();
     try {
       await _databaseReference
           .collection('users')
           .document(userId)
           .updateData({'location': newAddress});
+
+      callback(newAddress);
       return true;
     } catch (e) {
       print('error updating user address $e.message');
+      callback('error');
       return false;
+    }
+  }
+
+  // Probably want to move the location stuff to the back end at some point
+  Future<Position> _getCurrentLocation() async {
+    return await geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
+  }
+
+  Future<String> _getAddressFromLatLng() async {
+    try {
+      Position currentPosition = await _getCurrentLocation();
+      List<Placemark> p = await geolocator.placemarkFromCoordinates(
+          currentPosition.latitude, currentPosition.longitude);
+
+      Placemark place = p[0];
+
+      String address =
+          '${place.subThoroughfare} ${place.thoroughfare}, ${place.locality}, ${place.administrativeArea}';
+      return address;
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 
@@ -474,6 +524,7 @@ class User {
     @required this.userId,
     @required this.pictureUrl,
     @required this.location,
+    this.conversations,
   });
 }
 
