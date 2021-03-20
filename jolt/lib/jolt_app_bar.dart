@@ -6,6 +6,7 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function onPressed;
   final Function onTitleTapped;
   final VoidCallback logoutCallback;
+  final VoidCallback notificationsCallback;
 
   @override
   final Size preferredSize;
@@ -15,12 +16,16 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
     @required this.onPressed,
     this.onTitleTapped,
     this.logoutCallback,
+    this.notificationsCallback,
   }) : preferredSize = Size.fromHeight(60.0);
 
   void menuChoiceAction(String choice) {
-    if (choice == MenuItems.LOGOUT) {
+    if (choice == MenuItems.logout) {
       print('User logging out');
       logoutCallback();
+    } else if (choice == MenuItems.notifications) {
+      print('User selected notifications screen');
+      notificationsCallback();
     }
   }
 
@@ -39,8 +44,8 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
               size: 60,
             ),
             offset: Offset(
-             0,
-             100,
+              0,
+              100,
             ),
             onSelected: menuChoiceAction,
             itemBuilder: (BuildContext context) {
@@ -59,9 +64,11 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class MenuItems {
-  static const String LOGOUT = 'Logout';
+  static const String logout = 'Logout';
+  static const String notifications = 'Notifications';
 
   static const List<String> choices = <String>[
-    LOGOUT,
+    logout,
+    notifications,
   ];
 }

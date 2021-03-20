@@ -68,7 +68,8 @@ class DatabaseService {
     @required String email,
     @required String location,
     @required String userId,
-    String pictureUrl, // might want to make this required in the future
+    String pictureUrl,
+    List<String> conversationIds = const [],
   }) async {
     try {
       await _databaseReference.collection('users').document(userId).setData({
@@ -78,7 +79,8 @@ class DatabaseService {
         'gender': gender,
         'email': email,
         'location': location,
-        'pictureUrl': pictureUrl
+        'pictureUrl': pictureUrl,
+        'conversationIds': [],
       });
       return true;
     } catch (e) {
@@ -268,6 +270,19 @@ class DatabaseService {
     }
   }
 
+  // adds a conversation id to be tracked by a user
+  Future<bool> addConversationId(String userId, String conversationId) async {
+    try {
+      await _databaseReference.collection('users').document(userId).updateData({
+        'conversationIds': FieldValue.arrayUnion([conversationId]),
+      });
+      return true;
+    } catch (e) {
+      print('error trying to add conversation id: $e.message');
+      return false;
+    }
+  }
+
   // update a users address, returns true if it works
   Future<bool> updateUserAddress({
     @required String userId,
@@ -322,7 +337,3 @@ enum JoltTopic {
   nearbyUsers,
   chats,
 }
-
-// test listening for messages
-// need listen for adding new groups
-// need to add conversationIds to user documents

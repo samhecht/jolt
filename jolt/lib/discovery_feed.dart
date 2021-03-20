@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:jolt/notifications_screen.dart';
 
 import './location_available.dart';
 import './size_config.dart';
@@ -91,6 +92,14 @@ class _DiscoveryFeedState extends State<DiscoveryFeed> {
         child: null,
         title: null,
         logoutCallback: widget.logoutCallback,
+        notificationsCallback: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    NotificationsScreen(userId: widget.userId)),
+          );
+        },
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

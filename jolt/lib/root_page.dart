@@ -27,7 +27,6 @@ class _RootPageState extends State<RootPage> {
       });
     });
     setState(() {
-      print('are we getting here?');
       authStatus = AuthStatus.LOGGED_IN;
     });
   }

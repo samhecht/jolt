@@ -60,6 +60,8 @@ class JolterSelectedScreen extends StatelessWidget {
                     // wave(myUserId, userId)
                     print('waved at ' + name);
                     DatabaseService().wave(myUserId, userId);
+                    DatabaseService()
+                        .sendMessage(myUserId, userId, 'hey from marg');
                   },
                   color: Color(0xfff8f157),
                   child: Image(
