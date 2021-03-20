@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import './size_config.dart';
-// for JoltNotification type, should make a types file
-import 'notifications_screen.dart';
+import './database_service.dart';
 
 class NotificationsListEntry extends StatelessWidget {
   final JoltNotification notification;

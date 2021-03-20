@@ -50,24 +50,3 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 }
-
-class JoltNotification {
-  final User fromUser;
-  final NotificationType type;
-  bool acked;
-  final String timestamp;
-
-  JoltNotification({
-    @required this.fromUser,
-    @required this.type,
-    @required this.timestamp,
-  }) {
-    this.acked = false;
-  }
-}
-
-enum NotificationType {
-  wave,
-  wink,
-  text,
-}

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import './size_config.dart';
-import './notifications_screen.dart';
 import './notifications_list_entry.dart';
+import './database_service.dart';
 
 class NotificationsListView extends StatelessWidget {
   final List<JoltNotification> notifications;

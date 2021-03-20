@@ -8,6 +8,8 @@ class DatabaseService {
   final _databaseReference = Firestore.instance;
   StreamSubscription<QuerySnapshot> _nearbyUsersSubscription;
   List<StreamSubscription<QuerySnapshot>> _chatSubscriptions;
+  StreamSubscription<QuerySnapshot> _waveSubscription;
+  StreamSubscription<QuerySnapshot> _winkSubscription;
 
   // test to make sure the integration works
   void callDatabase() {
@@ -27,6 +29,16 @@ class DatabaseService {
       case JoltTopic.chats:
         {
           _chatSubscriptions = subscribeToChats(arguments, dataCallback);
+        }
+        break;
+      case JoltTopic.wave:
+        {
+          _waveSubscription = subscribeToWave(arguments, dataCallback);
+        }
+        break;
+      case JoltTopic.wink:
+        {
+          _winkSubscription = subscribeToWink(arguments, dataCallback);
         }
         break;
       default:
@@ -56,6 +68,26 @@ class DatabaseService {
             _chatSubscriptions.clear();
           }
         }
+        break;
+      case JoltTopic.wave:
+        {
+          if (_waveSubscription != null) {
+            _waveSubscription.cancel();
+            _waveSubscription = null;
+          }
+        }
+        break;
+      case JoltTopic.wink:
+        {
+          if (_winkSubscription != null) {
+            _winkSubscription.cancel();
+            _winkSubscription = null;
+          }
+        }
+        break;
+      default:
+        {}
+        break;
     }
   }
 
@@ -210,6 +242,118 @@ class DatabaseService {
     return chatSubs;
   }
 
+  // listen for waves from other users
+  StreamSubscription<QuerySnapshot> subscribeToWave(
+      Map<String, String> arguments,
+      Function(List<JoltNotification>) callback) {
+    String userId;
+    List<JoltNotification> waves;
+    if (arguments.containsKey('userId')) {
+      // conversation ids will be supplied delimited by ';'
+      userId = arguments['userId'];
+    } else {
+      throw Exception('Missing required myConversations parameter');
+    }
+
+    return _databaseReference
+        .collection('interactions/$userId/interactions')
+        .snapshots()
+        .listen((res) {
+      res.documentChanges.forEach((change) {
+        if (change.document.data['interactionType'] == 'wave') {
+          switch (change.type) {
+            case DocumentChangeType.added:
+              {
+                waves.add(new JoltNotification(
+                  fromUser: change.document.data['incomingUserId'],
+                  type: change.document.data['interactionType'],
+                  timestamp: change.document.data['timestamp'],
+                  acked: change.document.data['acked'],
+                ));
+                print('document added text: ' +
+                    change.document.data['incomingUserId']);
+              }
+              break;
+            case DocumentChangeType.removed:
+              {
+                print('document removed' +
+                    change.document.data['incomingUserId']);
+              }
+              break;
+            case DocumentChangeType.modified:
+              {
+                print('document modified' +
+                    change.document.data['incomingUserId']);
+              }
+              break;
+            default:
+              {
+                print('default case');
+              }
+              break;
+          }
+          callback(waves);
+        }
+      });
+    });
+  }
+
+  // listen for winks from other users
+  StreamSubscription<QuerySnapshot> subscribeToWink(
+      Map<String, String> arguments,
+      Function(List<JoltNotification>) callback) {
+    String userId;
+    List<JoltNotification> winks;
+    if (arguments.containsKey('userId')) {
+      // conversation ids will be supplied delimited by ';'
+      userId = arguments['userId'];
+    } else {
+      throw Exception('Missing required myConversations parameter');
+    }
+
+    return _databaseReference
+        .collection('interactions/$userId/interactions')
+        .snapshots()
+        .listen((res) {
+      res.documentChanges.forEach((change) {
+        if (change.document.data['interactionType'] == 'wink') {
+          switch (change.type) {
+            case DocumentChangeType.added:
+              {
+                winks.add(new JoltNotification(
+                  fromUser: change.document.data['incomingUserId'],
+                  type: change.document.data['interactionType'],
+                  timestamp: change.document.data['timestamp'],
+                  acked: change.document.data['acked'],
+                ));
+                print('document added text: ' +
+                    change.document.data['incomingUserId']);
+              }
+              break;
+            case DocumentChangeType.removed:
+              {
+                print('document removed' +
+                    change.document.data['incomingUserId']);
+              }
+              break;
+            case DocumentChangeType.modified:
+              {
+                print('document modified' +
+                    change.document.data['incomingUserId']);
+              }
+              break;
+            default:
+              {
+                print('default case');
+              }
+              break;
+          }
+          callback(winks);
+        }
+      });
+    });
+  }
+
   // send a wave to another user
   Future<bool> wave(String idSource, String idTarget) async {
     try {
@@ -336,4 +480,26 @@ class User {
 enum JoltTopic {
   nearbyUsers,
   chats,
+  wave,
+  wink,
+}
+
+class JoltNotification {
+  final User fromUser;
+  final NotificationType type;
+  bool acked;
+  final String timestamp;
+
+  JoltNotification({
+    @required this.fromUser,
+    @required this.type,
+    @required this.timestamp,
+    @required this.acked,
+  });
+}
+
+enum NotificationType {
+  wave,
+  wink,
+  text,
 }
