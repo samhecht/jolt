@@ -4,31 +4,16 @@ import './jolt_app_bar.dart';
 import './size_config.dart';
 import 'database_service.dart';
 
-class NotificationsScreen extends StatefulWidget {
-  final String userId;
-  final List<JoltNotification> notifications;
+class NotificationsScreen extends StatelessWidget {
+  static const routeName = '/notifications';
+  final User currentUser;
+  final VoidCallback logoutCallback;
 
   NotificationsScreen({
-    @required this.userId,
-    @required this.notifications,
-  }) {
-    notifications.sort((a, b) {
-      var timeA = DateTime.parse(a.timestamp);
-      var timeB = DateTime.parse(b.timestamp);
-      if (timeA.difference(timeB).inMinutes < 0) {
-        return 1;
-      } else {
-        return -1;
-      }
-    });
-  }
+    @required this.currentUser,
+    @required this.logoutCallback,
+  });
 
-  @override
-  _NotificationsScreenState createState() => _NotificationsScreenState();
-}
-
-// this seems like it can be stateless
-class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -37,6 +22,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         child: null,
         onPressed: () {},
         title: null,
+        logoutCallback: logoutCallback,
+        currentUser: currentUser,
       ),
       body: Container(
         height: SizeConfig.blockSizeVertical * 100,
@@ -46,7 +33,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               child: Container(
                 width: double.infinity,
                 child: NotificationsListView(
-                  notifications: widget.notifications,
+                  currentUser: currentUser,
                 ),
               ),
             ),

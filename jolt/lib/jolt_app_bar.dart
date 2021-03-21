@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:jolt/notifications_screen.dart';
+import 'package:provider/provider.dart';
+import './database_service.dart';
+import 'authentication.dart';
+import 'main.dart';
+import 'models/interactions_model.dart';
+import 'models/nearby_users_model.dart';
 
 class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -6,7 +13,7 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function onPressed;
   final Function onTitleTapped;
   final VoidCallback logoutCallback;
-  final VoidCallback notificationsCallback;
+  final User currentUser;
 
   @override
   final Size preferredSize;
@@ -14,19 +21,31 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
     @required this.title,
     @required this.child,
     @required this.onPressed,
+    @required this.currentUser,
     this.onTitleTapped,
     this.logoutCallback,
-    this.notificationsCallback,
   }) : preferredSize = Size.fromHeight(60.0);
 
-  void menuChoiceAction(String choice) {
-    if (choice == MenuItems.logout) {
-      print('User logging out');
-      logoutCallback();
-    } else if (choice == MenuItems.notifications) {
-      print('User selected notifications screen');
-      notificationsCallback();
-    }
+  void testWave() async {
+    User sam = await DatabaseService().getUser('QoHNDTFfA7hpEywzeRg9Dhaadr62');
+    User dan = await DatabaseService().getUser('Yf3bbbhTZvehRmT3KulBtYzgeSe2');
+    DatabaseService().wave(sam.userId, dan.userId);
+  }
+
+  void testWink() async {
+    User sam = await DatabaseService().getUser('QoHNDTFfA7hpEywzeRg9Dhaadr62');
+    User dan = await DatabaseService().getUser('Yf3bbbhTZvehRmT3KulBtYzgeSe2');
+
+    DatabaseService().wink(sam.userId, dan.userId);
+  }
+
+  void testText() async {
+    User sam = await DatabaseService().getUser('QoHNDTFfA7hpEywzeRg9Dhaadr62');
+    User dan = await DatabaseService().getUser('Yf3bbbhTZvehRmT3KulBtYzgeSe2');
+
+    String messageText = 'Sending a test message';
+
+    DatabaseService().sendMessage(sam.userId, dan.userId, messageText);
   }
 
   @override
@@ -47,7 +66,38 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
               0,
               100,
             ),
-            onSelected: menuChoiceAction,
+            onSelected: (String choice) {
+              String currentRoute = ModalRoute.of(context).settings.name;
+              // a little messy
+              if (choice == MenuItems.logout) {
+                Provider.of<InteractionsModel>(context, listen: false)
+                    .unsubscribe();
+                Provider.of<NearbyUsersModel>(context, listen: false)
+                    .unsubscribe();
+                Auth().signOut();
+                Navigator.pushNamed(
+                  context,
+                  'root',
+                );
+              } else if (choice == MenuItems.notifications &&
+                  currentRoute != NotificationsScreen.routeName) {
+                print('User selected notifications screen');
+                Navigator.pushNamed(
+                  context,
+                  NotificationsScreen.routeName,
+                  arguments: Arguments(
+                    currentUser: currentUser,
+                    logoutCallback: logoutCallback,
+                  ),
+                );
+              } else if (choice == MenuItems.testWave) {
+                testWave();
+              } else if (choice == MenuItems.testWink) {
+                testWink();
+              } else if (choice == MenuItems.testText) {
+                testText();
+              }
+            },
             itemBuilder: (BuildContext context) {
               return MenuItems.choices.map((String choice) {
                 return PopupMenuItem<String>(
@@ -66,9 +116,15 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
 class MenuItems {
   static const String logout = 'Logout';
   static const String notifications = 'Notifications';
+  static const String testWave = 'Test Wave';
+  static const String testWink = 'Test Wink';
+  static const String testText = 'Test Text';
 
   static const List<String> choices = <String>[
     logout,
     notifications,
+    testWave,
+    testWink,
+    testText,
   ];
 }

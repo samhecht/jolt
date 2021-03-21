@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import './size_config.dart';
 import './jolt_app_bar.dart';
+import 'database_service.dart';
 
 class ReceivedWaveScreen extends StatelessWidget {
   final String receivedFrom;
   final bool winked;
   final String name;
+  final User currentUser;
 
   ReceivedWaveScreen({
     @required this.receivedFrom,
     @required this.winked,
     @required this.name,
+    @required this.currentUser,
   });
 
   @override
@@ -21,6 +24,7 @@ class ReceivedWaveScreen extends StatelessWidget {
         child: null,
         onPressed: () {},
         title: null,
+        currentUser: currentUser,
       ),
       body: Container(
         child: Column(

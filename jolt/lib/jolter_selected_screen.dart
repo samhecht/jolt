@@ -9,12 +9,14 @@ class JolterSelectedScreen extends StatelessWidget {
   final String userId;
   final String pictureUrl;
   final String myUserId;
+  final User currentUser;
 
   JolterSelectedScreen({
     @required this.name,
     @required this.userId,
     @required this.pictureUrl,
     @required this.myUserId,
+    @required this.currentUser,
   });
 
   @override
@@ -25,6 +27,7 @@ class JolterSelectedScreen extends StatelessWidget {
         child: null,
         onPressed: () {},
         title: null,
+        currentUser: currentUser,
       ),
       body: Container(
         height: SizeConfig.blockSizeVertical * 100,

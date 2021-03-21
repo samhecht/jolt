@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:jolt/received_wave_screen.dart';
@@ -55,6 +56,8 @@ class NotificationsListEntry extends StatelessWidget {
               receivedFrom: notification.fromUser.userId,
               winked: notification.type == NotificationType.wink,
               name: notification.fromUser.name,
+              // incorrect need to update
+              currentUser: notification.fromUser,
             ),
           ),
         );

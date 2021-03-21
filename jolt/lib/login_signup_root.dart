@@ -8,6 +8,7 @@ import './signup.dart';
 // ie, using Navigator.push mounts a new widget, and
 // makes it so that root_page can't redirect on authentication
 class LoginSignupRoot extends StatefulWidget {
+  static const routeName = '/login';
   final VoidCallback loginCallback;
   final BaseAuth auth;
 
@@ -37,11 +38,12 @@ class _LoginSignupRootState extends State<LoginSignupRoot> {
         loginCallback: widget.loginCallback,
         toggleLoginScreen: toggleLoginScreen,
       );
+    } else {
+      return SignUpScreen(
+        auth: widget.auth,
+        loginCallback: widget.loginCallback,
+        toggleLoginScreen: toggleLoginScreen,
+      );
     }
-    return SignUpScreen(
-      auth: widget.auth,
-      loginCallback: widget.loginCallback,
-      toggleLoginScreen: toggleLoginScreen,
-    );
   }
 }

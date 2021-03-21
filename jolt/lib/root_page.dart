@@ -1,80 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:jolt/models/interactions_model.dart';
+import 'package:jolt/models/nearby_users_model.dart';
+import 'package:provider/provider.dart';
+
 import './authentication.dart';
 import './discovery_feed.dart';
 import './login_signup_root.dart';
+import './database_service.dart';
+import 'main.dart';
 
-enum AuthStatus {
-  NOT_DETERMINED,
-  NOT_LOGGED_IN,
-  LOGGED_IN,
-}
-
-class RootPage extends StatefulWidget {
-  final BaseAuth auth;
-  RootPage({this.auth});
-  @override
-  _RootPageState createState() => _RootPageState();
-}
-
-class _RootPageState extends State<RootPage> {
-  AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
-  String _userId = "";
-
-  void loginCallback() {
-    widget.auth.getCurrentUser().then((user) {
-      setState(() {
-        _userId = user.uid.toString();
-      });
-    });
-    setState(() {
-      authStatus = AuthStatus.LOGGED_IN;
-    });
-  }
-
-  void logoutCallback() {
-    setState(() {
-      authStatus = AuthStatus.NOT_LOGGED_IN;
-      _userId = "";
-    });
-  }
-
-  @override
-  void initState() {
-    print('in init state $authStatus');
-    super.initState();
-    widget.auth.getCurrentUser().then((user) {
-      setState(() {
-        if (user != null) {
-          _userId = user?.uid;
-        }
-        authStatus =
-            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
-      });
-    });
-  }
+class RootPage extends StatelessWidget {
+  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+  final BaseAuth auth = Auth();
 
   @override
   Widget build(BuildContext context) {
-    switch (authStatus) {
-      case AuthStatus.NOT_DETERMINED:
-        return Container();
-        break;
-      case AuthStatus.LOGGED_IN:
-        return DiscoveryFeed(
-          username: 'Sammy',
-          userId: _userId,
-          auth: widget.auth,
-          logoutCallback: logoutCallback,
+    var logoutCallback = () {
+      Provider.of<InteractionsModel>(context, listen: false).unsubscribe();
+      Provider.of<NearbyUsersModel>(context, listen: false).unsubscribe();
+      auth.signOut();
+    };
+    var loginCallback = () {
+      auth.getCurrentUser().then(
+        (user) async {
+          if (user != null) {
+            print('user id is: ' + user.uid);
+            var currentUser = await DatabaseService().getUser(user.uid);
+            Provider.of<InteractionsModel>(context, listen: false).userId =
+                currentUser.userId;
+            Provider.of<NearbyUsersModel>(context, listen: false).userId =
+                currentUser.userId;
+            Navigator.popAndPushNamed(
+              context,
+              DiscoveryFeed.routeName,
+              arguments: Arguments(
+                currentUser: currentUser,
+                logoutCallback: logoutCallback,
+              ),
+            );
+          }
+        },
+      );
+    };
+
+    auth.getCurrentUser().then(
+      (user) async {
+        if (user != null) {
+          print('user id is: ' + user.uid);
+          var currentUser = await DatabaseService().getUser(user.uid);
+          Provider.of<InteractionsModel>(context, listen: false).userId =
+              currentUser.userId;
+          Provider.of<NearbyUsersModel>(context, listen: false).userId =
+              currentUser.userId;
+          Navigator.pushNamed(
+            context,
+            DiscoveryFeed.routeName,
+            arguments: Arguments(
+              currentUser: currentUser,
+              logoutCallback: logoutCallback,
+            ),
+          );
+        }
+      },
+    );
+
+    return LoginSignupRoot(
+      auth: auth,
+      loginCallback: () {
+        Navigator.pushNamed(
+          context,
+          DiscoveryFeed.routeName,
+          arguments: Arguments(
+            loginCallback: loginCallback,
+          ),
         );
-        break;
-      case AuthStatus.NOT_LOGGED_IN:
-        return LoginSignupRoot(
-          loginCallback: loginCallback,
-          auth: widget.auth,
-        );
-        break;
-      default:
-        return Container();
-    }
+      },
+    );
   }
 }

@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import './size_config.dart';
 import './jolter_selected_screen.dart';
+import './database_service.dart';
 
 class JolterListEntry extends StatelessWidget {
-  final String name;
-  final String userId;
-  final String pictureUrl;
-  final String myUserId;
+  final User selectedUser;
+  final User currentUser;
 
   JolterListEntry({
-    @required this.name,
-    @required this.userId,
-    @required this.pictureUrl,
-    @required this.myUserId,
+    @required this.selectedUser,
+    @required this.currentUser,
   });
   @override
   Widget build(BuildContext context) {
@@ -23,12 +20,14 @@ class JolterListEntry extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => JolterSelectedScreen(
-                    name: name,
-                    userId: userId,
-                    pictureUrl: pictureUrl,
-                    myUserId: myUserId,
-                  )),
+            builder: (context) => JolterSelectedScreen(
+              name: selectedUser.name,
+              userId: selectedUser.userId,
+              pictureUrl: selectedUser.pictureUrl,
+              myUserId: currentUser.userId,
+              currentUser: currentUser,
+            ),
+          ),
         );
       },
       child: Container(
@@ -51,13 +50,13 @@ class JolterListEntry extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image(
-                    image: CachedNetworkImageProvider(pictureUrl),
+                    image: CachedNetworkImageProvider(selectedUser.pictureUrl),
                   ),
                 )),
             Container(
               margin: EdgeInsets.only(left: 60),
               child: Text(
-                name,
+                selectedUser.name,
                 style:
                     TextStyle(fontSize: 30, fontFamily: 'Schoolbell-Regular'),
               ),

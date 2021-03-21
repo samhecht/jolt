@@ -3,7 +3,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
 import './authentication.dart';
 import './size_config.dart';
-import './database_service.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback loginCallback;
@@ -101,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 CupertinoButton(
                   child: Text('Don\'t have an account? Sign up!'),
                   onPressed: () {
-                    DatabaseService().callDatabase();
                     widget.toggleLoginScreen();
                   },
                 ),

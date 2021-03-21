@@ -12,11 +12,7 @@ class DatabaseService {
   List<StreamSubscription<QuerySnapshot>> _chatSubscriptions;
   StreamSubscription<QuerySnapshot> _waveSubscription;
   StreamSubscription<QuerySnapshot> _winkSubscription;
-
-  // test to make sure the integration works
-  void callDatabase() {
-    print('called database');
-  }
+  StreamSubscription<QuerySnapshot> _interactionSubscription;
 
   // register a listener to process certain topic data
   void subscribe(
@@ -41,6 +37,12 @@ class DatabaseService {
       case JoltTopic.wink:
         {
           _winkSubscription = subscribeToWink(arguments, dataCallback);
+        }
+        break;
+      case JoltTopic.interactions:
+        {
+          _interactionSubscription =
+              subscribeToInteractions(arguments, dataCallback);
         }
         break;
       default:
@@ -87,6 +89,14 @@ class DatabaseService {
           }
         }
         break;
+      case JoltTopic.interactions:
+        {
+          if (_interactionSubscription != null) {
+            _interactionSubscription.cancel();
+            _interactionSubscription = null;
+          }
+        }
+        break;
       default:
         {}
         break;
@@ -114,7 +124,7 @@ class DatabaseService {
         'email': email,
         'location': location,
         'pictureUrl': pictureUrl,
-        'conversationIds': [],
+        'conversationIds': conversationIds,
       });
       return true;
     } catch (e) {
@@ -358,16 +368,83 @@ class DatabaseService {
     });
   }
 
+  // listen for waves and winks from other users
+  StreamSubscription<QuerySnapshot> subscribeToInteractions(
+      Map<String, String> arguments,
+      Function(List<JoltNotification>) callback) {
+    String userId;
+    List<JoltNotification> interactions = [];
+    if (arguments.containsKey('userId')) {
+      // conversation ids will be supplied delimited by ';'
+      userId = arguments['userId'];
+    } else {
+      throw Exception('Missing required myConversations parameter');
+    }
+
+    return _databaseReference
+        .collection('interactions/$userId/interactions')
+        .snapshots()
+        .listen(
+      (res) {
+        res.documentChanges.forEach(
+          (change) async {
+            switch (change.type) {
+              case DocumentChangeType.added:
+                {
+                  // do some data validation here
+                  interactions.add(
+                    new JoltNotification(
+                      fromUser: await getUser(
+                        change.document.data['incomingUserId'],
+                      ),
+                      type: JoltNotification.getTypeFromString(
+                        change.document.data['interactionType'],
+                      ),
+                      timestamp: change.document.data['timestamp'],
+                      acked: change.document.data['acked'],
+                    ),
+                  );
+                  print('document added text: ' +
+                      change.document.data['incomingUserId']);
+                }
+                break;
+              case DocumentChangeType.removed:
+                {
+                  print('document removed' +
+                      change.document.data['incomingUserId']);
+                }
+                break;
+              case DocumentChangeType.modified:
+                {
+                  print('document modified' +
+                      change.document.data['incomingUserId']);
+                }
+                break;
+              default:
+                {
+                  print('default case');
+                }
+                break;
+            }
+            callback(interactions);
+          },
+        );
+      },
+    );
+  }
+
   // send a wave to another user
   Future<bool> wave(String idSource, String idTarget) async {
     try {
       await _databaseReference
           .collection('interactions/$idTarget/interactions')
-          .add({
-        'incomingUserId': idSource,
-        'timestamp': new DateTime.now().toString(),
-        'interactionType': 'wave',
-      });
+          .add(
+        {
+          'incomingUserId': idSource,
+          'timestamp': new DateTime.now().toString(),
+          'interactionType': 'wave',
+        },
+      );
       return true;
     } catch (e) {
       print('Couldn\'t wave at: $idTarget $e');
@@ -376,20 +453,27 @@ class DatabaseService {
   }
 
   Future<User> getUser(String userId) async {
-    DocumentSnapshot doc =
-        await _databaseReference.document('users/$userId').get();
-    var user = doc.data;
-    User currUser = new User(
-      name: user['name'],
-      email: user['email'],
-      phoneNumber: user['phoneNumber'],
-      birthDate: user['birthDate'],
-      userId: doc.documentID,
-      gender: user['gender'],
-      pictureUrl: user['pictureUrl'],
-      location: user['location'],
-      conversations: user['conversations'],
-    );
+    User currUser;
+    print('id issss $userId');
+    try {
+      DocumentSnapshot doc =
+          await _databaseReference.document('users/$userId').get();
+      var user = doc.data;
+      currUser = new User(
+        name: user['name'],
+        email: user['email'],
+        phoneNumber: user['phoneNumber'],
+        birthDate: user['birthDate'],
+        userId: doc.documentID,
+        gender: user['gender'],
+        pictureUrl: user['pictureUrl'],
+        location: user['location'],
+        conversations: user['conversations'],
+      );
+    } catch (e) {
+      currUser = null;
+      print('couldnt get user $e');
+    }
 
     return currUser;
   }
@@ -399,11 +483,13 @@ class DatabaseService {
     try {
       await _databaseReference
           .collection('interactions/$idTarget/interactions')
-          .add({
-        'incomingUserId': idSource,
-        'timestamp': new DateTime.now().toString(),
-        'interactionType': 'wink',
-      });
+          .add(
+        {
+          'incomingUserId': idSource,
+          'timestamp': new DateTime.now().toString(),
+          'interactionType': 'wink',
+        },
+      );
       return true;
     } catch (e) {
       print('Couldn\'t wink at: $idTarget $e');
@@ -425,11 +511,13 @@ class DatabaseService {
 
       await _databaseReference
           .collection('conversations/$conversationId/messages')
-          .add({
-        'sentBy': idSource,
-        'timestamp': new DateTime.now().toString(),
-        'text': text,
-      });
+          .add(
+        {
+          'sentBy': idSource,
+          'timestamp': new DateTime.now().toString(),
+          'text': text,
+        },
+      );
       return true;
     } catch (e) {
       print('Couldn\'t wink at: $idTarget $e');
@@ -440,9 +528,11 @@ class DatabaseService {
   // adds a conversation id to be tracked by a user
   Future<bool> addConversationId(String userId, String conversationId) async {
     try {
-      await _databaseReference.collection('users').document(userId).updateData({
-        'conversationIds': FieldValue.arrayUnion([conversationId]),
-      });
+      await _databaseReference.collection('users').document(userId).updateData(
+        {
+          'conversationIds': FieldValue.arrayUnion([conversationId]),
+        },
+      );
       return true;
     } catch (e) {
       print('error trying to add conversation id: $e.message');
@@ -457,10 +547,11 @@ class DatabaseService {
   }) async {
     String newAddress = await _getAddressFromLatLng();
     try {
-      await _databaseReference
-          .collection('users')
-          .document(userId)
-          .updateData({'location': newAddress});
+      await _databaseReference.collection('users').document(userId).updateData(
+        {
+          'location': newAddress,
+        },
+      );
 
       callback(newAddress);
       return true;
@@ -474,7 +565,8 @@ class DatabaseService {
   // Probably want to move the location stuff to the back end at some point
   Future<Position> _getCurrentLocation() async {
     return await geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
+      desiredAccuracy: LocationAccuracy.best,
+    );
   }
 
   Future<String> _getAddressFromLatLng() async {
@@ -533,6 +625,7 @@ enum JoltTopic {
   chats,
   wave,
   wink,
+  interactions,
 }
 
 class JoltNotification {
@@ -540,6 +633,53 @@ class JoltNotification {
   final NotificationType type;
   bool acked;
   final String timestamp;
+
+  static NotificationType getTypeFromString(String typeString) {
+    NotificationType type;
+    if (typeString == 'wave') {
+      type = NotificationType.wave;
+    } else if (typeString == 'wink') {
+      type = NotificationType.wink;
+    } else if (typeString == 'text') {
+      type = NotificationType.text;
+    } else {
+      type = NotificationType.unknown;
+    }
+    return type;
+  }
+
+  static String getStringFromType(NotificationType type) {
+    String typeString = '';
+
+    switch (type) {
+      case NotificationType.wave:
+        typeString = 'wave';
+        break;
+      case NotificationType.wink:
+        typeString = 'wink';
+        break;
+      case NotificationType.text:
+        typeString = 'text';
+        break;
+      case NotificationType.unknown:
+      default:
+        typeString = 'unknown';
+        break;
+    }
+
+    return typeString;
+  }
+
+  // Compare function for sorting
+  static int compare(JoltNotification a, JoltNotification b) {
+    var timeA = DateTime.parse(a.timestamp);
+    var timeB = DateTime.parse(b.timestamp);
+    if (timeA.difference(timeB).inMilliseconds < 0) {
+      return 1;
+    } else {
+      return -1;
+    }
+  }
 
   JoltNotification({
     @required this.fromUser,
@@ -553,4 +693,5 @@ enum NotificationType {
   wave,
   wink,
   text,
+  unknown,
 }
