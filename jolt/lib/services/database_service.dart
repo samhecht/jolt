@@ -207,24 +207,36 @@ class DatabaseService {
   // register a callback to listen to chat data
   List<StreamSubscription<QuerySnapshot>> subscribeToChats(
     Map<String, String> arguments,
-    Function(Map<String, dynamic>) callback,
+    Function(JoltConversation) callback,
   ) {
-    List<String> myConversations;
-    List<StreamSubscription<QuerySnapshot>> chatSubs;
-
-    if (arguments.containsKey('myCurrentAddress')) {
+    List<JoltConversation> myConversations = [];
+    List<StreamSubscription<QuerySnapshot>> chatSubs = [];
+    print("conversations: ${arguments['myConversations']}");
+    if (arguments.containsKey('myConversations')) {
       // conversation ids will be supplied delimited by ';'
-      myConversations = arguments['myConversations'].split(';');
+      myConversations = arguments['myConversations']
+          .split(';')
+          .map(
+            (conversationId) => new JoltConversation(
+              conversationId: conversationId,
+              fromUser: null,
+              messages: [],
+            ),
+          )
+          .toList();
+
+      myConversations
+          .removeWhere((conversation) => conversation.conversationId.isEmpty);
     } else {
       throw Exception('Missing required myConversations parameter');
     }
 
     myConversations.forEach(
-      (String conversationId) {
+      (JoltConversation conversation) {
         var conversationStream = _databaseReference
             .collection('conversations')
-            .document('messages')
-            .collection(conversationId)
+            .document(conversation.conversationId)
+            .collection('messages')
             .snapshots()
             .listen(
           (res) {
@@ -233,6 +245,11 @@ class DatabaseService {
                 switch (change.type) {
                   case DocumentChangeType.added:
                     {
+                      conversation.addMessage(
+                        change.document.data['text'],
+                        change.document.data['sentBy'],
+                        change.document.data['timestamp'],
+                      );
                       print(
                         'Added: subscribeToChats: ${change.document.documentID}',
                       );
@@ -260,6 +277,7 @@ class DatabaseService {
                 }
               },
             );
+            callback(conversation);
           },
         );
 
@@ -489,8 +507,11 @@ class DatabaseService {
   ) async {
     User currUser;
     try {
-      DocumentSnapshot doc =
-          await _databaseReference.document('users/$userId').get();
+      DocumentSnapshot doc = await _databaseReference
+          .document(
+            'users/$userId',
+          )
+          .get();
       var user = doc.data;
       currUser = new User(
         name: user['name'],
@@ -501,7 +522,7 @@ class DatabaseService {
         gender: user['gender'],
         pictureUrl: user['pictureUrl'],
         location: user['location'],
-        conversations: user['conversations'],
+        conversations: List<String>.from(user['conversationIds']),
       );
     } catch (e) {
       currUser = null;
@@ -547,6 +568,9 @@ class DatabaseService {
       } else {
         conversationId = '$idTarget+$idSource';
       }
+
+      await addConversationId(idSource, conversationId);
+      await addConversationId(idSource, conversationId);
 
       var messagesColl = _databaseReference
           .collection('conversations/$conversationId/messages');
@@ -648,6 +672,21 @@ class User {
   final String location;
 
   List<String> conversations = [];
+  static User from(User old) {
+    return new User(
+      birthDate: old?.birthDate,
+      phoneNumber: old?.phoneNumber,
+      email: old?.email,
+      gender: old?.gender,
+      name: old?.name,
+      userId: old?.userId,
+      pictureUrl: old?.pictureUrl,
+      location: old?.location,
+      conversations: List<String>.from(
+        old != null ? old.conversations : [],
+      ),
+    );
+  }
 
   User({
     @required this.name,
@@ -659,7 +698,11 @@ class User {
     @required this.pictureUrl,
     @required this.location,
     this.conversations,
-  });
+  }) {
+    if (this.conversations == null) {
+      this.conversations = [];
+    }
+  }
 }
 
 enum JoltTopic {
@@ -728,6 +771,79 @@ class JoltNotification {
     @required this.type,
     @required this.timestamp,
     @required this.acked,
+  });
+}
+
+class JoltConversation {
+  final String conversationId;
+  User fromUser;
+  List<JoltTextMessage> messages;
+
+  static JoltConversation from(JoltConversation old) {
+    return new JoltConversation(
+      conversationId: old?.conversationId,
+      fromUser: User.from(old?.fromUser),
+      messages: List<JoltTextMessage>.from(
+        old != null ? old.messages : [],
+      ),
+    );
+  }
+
+  void addMessage(
+    String text,
+    String sentBy,
+    String timestamp,
+  ) {
+    messages.add(
+      new JoltTextMessage(
+        text: text,
+        timestamp: timestamp,
+        sentBy: sentBy,
+      ),
+    );
+  }
+
+  JoltConversation({
+    @required this.conversationId,
+    @required this.messages,
+    this.fromUser,
+  });
+}
+
+class JoltTextMessage {
+  final String text;
+  final String timestamp;
+  final String sentBy;
+
+  // Compare function for sorting
+  static int compare(JoltTextMessage a, JoltTextMessage b) {
+    if (a.timestamp == null ||
+        b.timestamp == null ||
+        a.timestamp.isEmpty ||
+        b.timestamp.isEmpty) {
+      return 1;
+    }
+    var timeA = DateTime.parse(a.timestamp);
+    var timeB = DateTime.parse(b.timestamp);
+    if (timeA.difference(timeB).inMilliseconds < 0) {
+      return 1;
+    } else {
+      return -1;
+    }
+  }
+
+  static JoltTextMessage from(JoltTextMessage old) {
+    return new JoltTextMessage(
+      text: old?.text,
+      timestamp: old?.timestamp,
+      sentBy: old?.sentBy,
+    );
+  }
+
+  JoltTextMessage({
+    @required this.text,
+    @required this.timestamp,
+    @required this.sentBy,
   });
 }
 

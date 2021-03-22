@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jolt/models/messages_model.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 
@@ -179,6 +180,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           listen: false,
                         ).userId = userId;
                         Provider.of<NearbyUsersModel>(
+                          context,
+                          listen: false,
+                        ).userId = userId;
+                        Provider.of<MessagesModel>(
                           context,
                           listen: false,
                         ).userId = userId;

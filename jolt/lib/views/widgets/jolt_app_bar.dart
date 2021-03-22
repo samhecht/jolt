@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jolt/models/messages_model.dart';
+import 'package:jolt/views/messages_screen/messages_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'package:jolt/views/notifications_screen/notifications_screen.dart';
@@ -60,6 +62,10 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
           context,
           listen: false,
         ).unsubscribe();
+        Provider.of<MessagesModel>(
+          context,
+          listen: false,
+        ).unsubscribe();
         Provider.of<AuthenticationModel>(
           context,
           listen: false,
@@ -74,6 +80,12 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
         Navigator.pushNamed(
           context,
           NotificationsScreen.routeName,
+        );
+      } else if (choice == MenuItems.messages &&
+          currentRoute != MessagesScreen.routeName) {
+        Navigator.pushNamed(
+          context,
+          MessagesScreen.routeName,
         );
       } else if (choice == MenuItems.testWave) {
         testWave();
@@ -124,6 +136,7 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
 class MenuItems {
   static const String logout = 'Logout';
   static const String notifications = 'Notifications';
+  static const String messages = 'Messages';
   static const String testWave = 'Test Wave';
   static const String testWink = 'Test Wink';
   static const String testText = 'Test Text';
@@ -131,6 +144,7 @@ class MenuItems {
   static const List<String> choices = <String>[
     logout,
     notifications,
+    messages,
     testWave,
     testWink,
     testText,

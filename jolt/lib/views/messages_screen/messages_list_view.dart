@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:jolt/models/messages_model.dart';
 import 'package:provider/provider.dart';
 
 import 'package:jolt/views/utilities/size_config.dart';
-import 'package:jolt/views/notifications_screen/notifications_list_entry.dart';
+import 'package:jolt/views/messages_screen/messages_list_entry.dart';
 import 'package:jolt/services/database_service.dart';
-import 'package:jolt/models/interactions_model.dart';
 
-class NotificationsListView extends StatelessWidget {
+class MessagesListView extends StatelessWidget {
   final User currentUser;
 
-  NotificationsListView({
+  MessagesListView({
     @required this.currentUser,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<InteractionsModel>(
+    return Consumer<MessagesModel>(
       builder: (
         context,
         data,
@@ -27,10 +27,10 @@ class NotificationsListView extends StatelessWidget {
         child: ListView(
           shrinkWrap: true,
           padding: const EdgeInsets.all(8),
-          children: data.interactions.map(
-            (notification) {
-              return new NotificationsListEntry(
-                notification: notification,
+          children: data.conversations.map(
+            (conversation) {
+              return new MessagesListEntry(
+                conversation: conversation,
                 currentUser: currentUser,
               );
             },

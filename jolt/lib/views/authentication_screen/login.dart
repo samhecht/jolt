@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:jolt/models/messages_model.dart';
 import 'package:provider/provider.dart';
 
 import 'package:jolt/views/utilities/size_config.dart';
@@ -98,6 +99,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             listen: false,
                           ).userId = userId;
                           Provider.of<NearbyUsersModel>(
+                            context,
+                            listen: false,
+                          ).userId = userId;
+                          Provider.of<MessagesModel>(
                             context,
                             listen: false,
                           ).userId = userId;

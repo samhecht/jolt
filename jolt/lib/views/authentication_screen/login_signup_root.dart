@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jolt/models/messages_model.dart';
 import 'package:provider/provider.dart';
 
 import 'package:jolt/views/authentication_screen/login.dart';
@@ -47,6 +48,10 @@ class _LoginSignupRootState extends State<LoginSignupRoot> {
         listen: false,
       ).userId = userId;
       Provider.of<NearbyUsersModel>(
+        context,
+        listen: false,
+      ).userId = userId;
+      Provider.of<MessagesModel>(
         context,
         listen: false,
       ).userId = userId;

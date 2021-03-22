@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:jolt/models/messages_model.dart';
 import 'package:jolt/services/database_service.dart';
+import 'package:jolt/views/active_chat_screen/active_chat_screen.dart';
 import 'package:jolt/views/jolter_selected_screen/jolter_selected_screen.dart';
+import 'package:jolt/views/messages_screen/messages_screen.dart';
 import 'package:jolt/views/received_interaction_screen/received_interaction_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +31,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => AuthenticationModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => MessagesModel(),
         ),
       ],
       child: MaterialApp(
@@ -88,6 +94,26 @@ class MyApp extends StatelessWidget {
                 );
               }
               break;
+            case MessagesScreen.routeName:
+              {
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return MessagesScreen();
+                  },
+                );
+              }
+              break;
+            case ActiveChatScreen.routeName:
+              {
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return ActiveChatScreen(
+                      conversation: args.conversation,
+                    );
+                  },
+                );
+              }
+              break;
             default:
               {
                 return MaterialPageRoute(
@@ -107,9 +133,11 @@ class MyApp extends StatelessWidget {
 class Arguments {
   final User selectedUser;
   final JoltNotification notification;
+  final JoltConversation conversation;
 
   Arguments({
     this.selectedUser,
     this.notification,
+    this.conversation,
   });
 }
