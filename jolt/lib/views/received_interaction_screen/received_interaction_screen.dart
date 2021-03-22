@@ -1,24 +1,50 @@
 import 'package:flutter/material.dart';
-import './size_config.dart';
-import './jolt_app_bar.dart';
-import 'database_service.dart';
+import 'package:provider/provider.dart';
 
-class ReceivedWaveScreen extends StatelessWidget {
-  final String receivedFrom;
-  final bool winked;
-  final String name;
-  final User currentUser;
+import 'package:jolt/views/authentication_screen/login_signup_root.dart';
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/widgets/jolt_app_bar.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:jolt/models/authentication_model.dart';
 
-  ReceivedWaveScreen({
-    @required this.receivedFrom,
-    @required this.winked,
-    @required this.name,
-    @required this.currentUser,
+class ReceivedInteractionScreen extends StatelessWidget {
+  static const routeName = 'received_interaction';
+
+  final JoltNotification notification;
+
+  ReceivedInteractionScreen({
+    @required this.notification,
   });
+
+  String buildNotificationText(
+    User currentUser,
+  ) {
+    String myName = currentUser?.name;
+    String from = notification.fromUser?.name;
+    String type = JoltNotification.getStringFromType(notification.type);
+    return 'Congratulations $myName, $from has ${type}ed at you! $type back?';
+  }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+
+    if (Provider.of<AuthenticationModel>(
+      context,
+      listen: false,
+    ).isNotSignedIn) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        LoginSignupRoot.routeName,
+        (route) => false,
+      );
+    }
+
+    User currentUser = Provider.of<AuthenticationModel>(
+      context,
+      listen: false,
+    ).currentUser;
+
     return Scaffold(
       appBar: JoltAppBar(
         child: null,
@@ -43,11 +69,7 @@ class ReceivedWaveScreen extends StatelessWidget {
               alignment: Alignment.center,
               margin: EdgeInsets.only(bottom: 20, top: 20),
               child: Text(
-                'Congratulations $name, $receivedFrom has ' +
-                    (winked ? 'winked' : 'waved') +
-                    ' at you! ' +
-                    (winked ? 'wink' : 'wave') +
-                    ' back?',
+                buildNotificationText(currentUser),
                 style: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Schoolbell-Regular',
@@ -65,7 +87,10 @@ class ReceivedWaveScreen extends StatelessWidget {
                     constraints: BoxConstraints.expand(),
                     child: RaisedButton(
                       onPressed: () {
-                        print('waved back at $name');
+                        DatabaseService().wave(
+                          currentUser?.userId,
+                          notification?.fromUser?.userId,
+                        );
                       },
                       color: Color(0xfff8f157),
                       child: Image(
@@ -82,7 +107,10 @@ class ReceivedWaveScreen extends StatelessWidget {
                     constraints: BoxConstraints.expand(),
                     child: RaisedButton(
                       onPressed: () {
-                        print('winked back at $name');
+                        DatabaseService().wink(
+                          currentUser?.userId,
+                          notification?.fromUser?.userId,
+                        );
                       },
                       color: Color(0xfff8f157),
                       child: Image(

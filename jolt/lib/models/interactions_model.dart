@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 
-import '../database_service.dart';
+import 'package:jolt/services/database_service.dart';
 
 class InteractionsModel extends ChangeNotifier {
   List<JoltNotification> _interactions = [];

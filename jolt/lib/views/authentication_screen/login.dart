@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
-import './authentication.dart';
-import './size_config.dart';
+import 'package:provider/provider.dart';
+
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/discovery_screen/discovery_feed.dart';
+import 'package:jolt/models/interactions_model.dart';
+import 'package:jolt/models/authentication_model.dart';
+import 'package:jolt/models/nearby_users_model.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback loginCallback;
-  final BaseAuth auth;
   final VoidCallback toggleLoginScreen;
   LoginScreen({
-    @required this.loginCallback,
-    @required this.auth,
     @required this.toggleLoginScreen,
   });
   @override
@@ -84,11 +85,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       try {
-                        print('username: ' + email + ', password: ' + password);
-                        String userId =
-                            await widget.auth.signIn(email.trim(), password);
-                        print('logging in ' + userId);
-                        widget.loginCallback();
+                        String userId = await Provider.of<AuthenticationModel>(
+                          context,
+                          listen: false,
+                        ).signIn(
+                          email.trim(),
+                          password,
+                        );
+                        if (userId.isNotEmpty) {
+                          Provider.of<InteractionsModel>(
+                            context,
+                            listen: false,
+                          ).userId = userId;
+                          Provider.of<NearbyUsersModel>(
+                            context,
+                            listen: false,
+                          ).userId = userId;
+                          Navigator.pushNamed(
+                            context,
+                            DiscoveryFeed.routeName,
+                          );
+                        } else {
+                          print('couldnt login user');
+                        }
                       } catch (e) {
                         print('Error logging in: ' + e.message);
                       }

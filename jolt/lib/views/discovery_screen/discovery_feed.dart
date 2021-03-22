@@ -1,37 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:jolt/views/authentication_screen/login_signup_root.dart';
+import 'package:provider/provider.dart';
 
-import 'package:jolt/notifications_screen.dart';
-
-import './location_available.dart';
-import './size_config.dart';
-import './jolt_app_bar.dart';
-import './jolter_list_view.dart';
-import './database_service.dart';
-import 'main.dart';
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/widgets/location_available.dart';
+import 'package:jolt/views/widgets/jolt_app_bar.dart';
+import 'package:jolt/views/discovery_screen/jolter_list_view.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:jolt/models/authentication_model.dart';
 
 class DiscoveryFeed extends StatelessWidget {
   static const routeName = '/discovery';
 
   final List<JoltNotification> notifications = [];
 
-  final User currentUser;
-  final VoidCallback logoutCallback;
-
-  DiscoveryFeed({
-    @required this.currentUser,
-    @required this.logoutCallback,
-  });
+  DiscoveryFeed();
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+
+    if (Provider.of<AuthenticationModel>(
+      context,
+      listen: false,
+    ).isNotSignedIn) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        LoginSignupRoot.routeName,
+        (route) => false,
+      );
+    }
     return Scaffold(
       appBar: JoltAppBar(
         onPressed: () {},
         child: null,
         title: null,
-        currentUser: currentUser,
+        currentUser: Provider.of<AuthenticationModel>(
+          context,
+          listen: false,
+        ).currentUser,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -41,7 +49,9 @@ class DiscoveryFeed extends StatelessWidget {
             child: LocationAvailable(),
           ),
           Text(
-            'address need to update',
+            Provider.of<AuthenticationModel>(context, listen: false)
+                .currentUser
+                .location,
           ),
           Container(
             width: double.infinity,
@@ -58,7 +68,9 @@ class DiscoveryFeed extends StatelessWidget {
             child: Container(
               width: double.infinity,
               child: JolterListView(
-                currentUser: currentUser,
+                currentUser:
+                    Provider.of<AuthenticationModel>(context, listen: false)
+                        .currentUser,
               ),
             ),
           )

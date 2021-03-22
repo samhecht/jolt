@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './size_config.dart';
-import './notifications_list_entry.dart';
-import './database_service.dart';
-import 'models/interactions_model.dart';
+
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/notifications_screen/notifications_list_entry.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:jolt/models/interactions_model.dart';
 
 class NotificationsListView extends StatelessWidget {
   final List<JoltNotification> notifications = [];
@@ -31,6 +32,7 @@ class NotificationsListView extends StatelessWidget {
             (notification) {
               return new NotificationsListEntry(
                 notification: notification,
+                currentUser: currentUser,
               );
             },
           ).toList(),

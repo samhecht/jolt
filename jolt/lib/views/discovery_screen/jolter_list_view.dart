@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './jolter_list_entry.dart';
-import './size_config.dart';
-import './database_service.dart';
-import './models/nearby_users_model.dart';
+
+import 'package:jolt/views/discovery_screen/jolter_list_entry.dart';
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:jolt/models/nearby_users_model.dart';
 
 // this class displays a list of jolters in the same physical locaiton as you
 class JolterListView extends StatelessWidget {

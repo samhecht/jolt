@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:jolt/notifications_screen.dart';
 import 'package:provider/provider.dart';
-import './database_service.dart';
-import 'authentication.dart';
-import 'main.dart';
-import 'models/interactions_model.dart';
-import 'models/nearby_users_model.dart';
+
+import 'package:jolt/views/notifications_screen/notifications_screen.dart';
+import 'package:jolt/views/authentication_screen/login_signup_root.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:jolt/models/authentication_model.dart';
+import 'package:jolt/models/interactions_model.dart';
+import 'package:jolt/models/nearby_users_model.dart';
 
 class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final Widget child;
   final Function onPressed;
   final Function onTitleTapped;
-  final VoidCallback logoutCallback;
   final User currentUser;
+  final Size preferredSize;
 
   @override
-  final Size preferredSize;
   JoltAppBar({
     @required this.title,
     @required this.child,
     @required this.onPressed,
     @required this.currentUser,
     this.onTitleTapped,
-    this.logoutCallback,
   }) : preferredSize = Size.fromHeight(60.0);
 
   void testWave() async {
@@ -48,6 +47,44 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
     DatabaseService().sendMessage(sam.userId, dan.userId, messageText);
   }
 
+  // Return a function to deal with menu item choices
+  Function(String) getOnSelected(BuildContext context) {
+    return (String choice) {
+      String currentRoute = ModalRoute.of(context).settings.name;
+      if (choice == MenuItems.logout) {
+        Provider.of<InteractionsModel>(
+          context,
+          listen: false,
+        ).unsubscribe();
+        Provider.of<NearbyUsersModel>(
+          context,
+          listen: false,
+        ).unsubscribe();
+        Provider.of<AuthenticationModel>(
+          context,
+          listen: false,
+        ).signOut();
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          LoginSignupRoot.routeName,
+          (route) => false,
+        );
+      } else if (choice == MenuItems.notifications &&
+          currentRoute != NotificationsScreen.routeName) {
+        Navigator.pushNamed(
+          context,
+          NotificationsScreen.routeName,
+        );
+      } else if (choice == MenuItems.testWave) {
+        testWave();
+      } else if (choice == MenuItems.testWink) {
+        testWink();
+      } else if (choice == MenuItems.testText) {
+        testText();
+      }
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -66,45 +103,16 @@ class JoltAppBar extends StatelessWidget implements PreferredSizeWidget {
               0,
               100,
             ),
-            onSelected: (String choice) {
-              String currentRoute = ModalRoute.of(context).settings.name;
-              // a little messy
-              if (choice == MenuItems.logout) {
-                Provider.of<InteractionsModel>(context, listen: false)
-                    .unsubscribe();
-                Provider.of<NearbyUsersModel>(context, listen: false)
-                    .unsubscribe();
-                Auth().signOut();
-                Navigator.pushNamed(
-                  context,
-                  'root',
-                );
-              } else if (choice == MenuItems.notifications &&
-                  currentRoute != NotificationsScreen.routeName) {
-                print('User selected notifications screen');
-                Navigator.pushNamed(
-                  context,
-                  NotificationsScreen.routeName,
-                  arguments: Arguments(
-                    currentUser: currentUser,
-                    logoutCallback: logoutCallback,
-                  ),
-                );
-              } else if (choice == MenuItems.testWave) {
-                testWave();
-              } else if (choice == MenuItems.testWink) {
-                testWink();
-              } else if (choice == MenuItems.testText) {
-                testText();
-              }
-            },
+            onSelected: getOnSelected(context),
             itemBuilder: (BuildContext context) {
-              return MenuItems.choices.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
+              return MenuItems.choices.map(
+                (String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                },
+              ).toList();
             },
           )
         ],

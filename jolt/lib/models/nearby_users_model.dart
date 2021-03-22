@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
-
 import 'package:flutter/material.dart';
-import '../database_service.dart';
+
+import 'package:jolt/services/database_service.dart';
 
 // This class notifies widgets when the nearby users change
 class NearbyUsersModel extends ChangeNotifier {

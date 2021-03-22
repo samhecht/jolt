@@ -1,19 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:jolt/received_wave_screen.dart';
-import './size_config.dart';
-import './database_service.dart';
+
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/received_interaction_screen/received_interaction_screen.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:jolt/main.dart';
 
 class NotificationsListEntry extends StatelessWidget {
   final JoltNotification notification;
+  final User currentUser;
+
+  NotificationsListEntry({
+    @required this.notification,
+    @required this.currentUser,
+  });
 
   Text notificationToString() {
-    String name = notification.fromUser.name;
-    DateTime timestamp = DateTime.parse(notification.timestamp);
+    String name = notification?.fromUser?.name;
+    DateTime timestamp = DateTime.parse(notification?.timestamp);
     int recency = DateTime.now().difference(timestamp).inMinutes;
     String action = '';
-    switch (notification.type) {
+    switch (notification?.type) {
       case NotificationType.wave:
         {
           action = 'waved';
@@ -38,27 +46,23 @@ class NotificationsListEntry extends StatelessWidget {
     String textBody = '$name just $action at you! $recency minutes ago';
     return Text(
       textBody,
-      style: TextStyle(fontSize: 10, fontFamily: 'Schoolbell-Regular'),
+      style: TextStyle(
+        fontSize: 10,
+        fontFamily: 'Schoolbell-Regular',
+      ),
     );
   }
 
-  NotificationsListEntry({@required this.notification});
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return InkWell(
       onTap: () {
-        print('clicked a notification, should probably route to a screen');
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) => ReceivedWaveScreen(
-              receivedFrom: notification.fromUser.userId,
-              winked: notification.type == NotificationType.wink,
-              name: notification.fromUser.name,
-              // incorrect need to update
-              currentUser: notification.fromUser,
-            ),
+          ReceivedInteractionScreen.routeName,
+          arguments: Arguments(
+            notification: notification,
           ),
         );
       },

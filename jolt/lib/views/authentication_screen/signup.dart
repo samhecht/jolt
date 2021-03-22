@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
-import './authentication.dart';
-import './image_storage_service.dart';
-import './size_config.dart';
-import './database_service.dart';
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/discovery_screen/discovery_feed.dart';
+import 'package:jolt/models/interactions_model.dart';
+import 'package:jolt/models/nearby_users_model.dart';
+import 'package:jolt/models/authentication_model.dart';
 
 class SignUpScreen extends StatefulWidget {
-  final VoidCallback loginCallback;
-  final BaseAuth auth;
   final VoidCallback toggleLoginScreen;
   SignUpScreen({
-    @required this.loginCallback,
-    @required this.auth,
     @required this.toggleLoginScreen,
   });
   @override
@@ -28,8 +26,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String email = '';
   String birthDate = '';
   String phoneNumber = '';
-  // keep as a string in case we want to add to this
-  // maybe an enum would be better
   String gender = '';
 
   File profilePicture;
@@ -163,28 +159,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: Text('Submit'),
                   onPressed: () async {
                     try {
-                      print(
-                          '$email, $password, $name, $birthDate, $gender, $phoneNumber, $profilePicture');
-                      String userId =
-                          await widget.auth.signUp(email.trim(), password);
-                      print('signed up user ' + userId);
-                      ImageStorageResult result = await ImageStorageService()
-                          .uploadImage(
-                              imageToUpload: profilePicture, userId: userId);
-                      print(result.imageUrl);
-                      // got to find a way to get the userId in here
-                      DatabaseService().insertUser(
+                      String userId = await Provider.of<AuthenticationModel>(
+                        context,
+                        listen: false,
+                      ).signUp(
                         name: name,
                         birthDate: birthDate,
                         phoneNumber: phoneNumber,
                         gender: gender,
                         email: email,
-                        location: null,
-                        userId: userId,
-                        pictureUrl: result.imageUrl,
+                        password: password,
+                        location: '',
+                        imageToUpload: profilePicture,
                       );
-                      // pass sign up data to loginCallback to get userId
-                      widget.loginCallback();
+
+                      if (userId.isNotEmpty) {
+                        Provider.of<InteractionsModel>(
+                          context,
+                          listen: false,
+                        ).userId = userId;
+                        Provider.of<NearbyUsersModel>(
+                          context,
+                          listen: false,
+                        ).userId = userId;
+                        Navigator.pushNamed(
+                          context,
+                          DiscoveryFeed.routeName,
+                        );
+                      } else {
+                        // handle login issues here
+                        print('couldnt sign up user');
+                      }
                     } catch (e) {
                       print(e);
                     }

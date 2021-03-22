@@ -16,7 +16,10 @@ class DatabaseService {
 
   // register a listener to process certain topic data
   void subscribe(
-      JoltTopic topic, Function dataCallback, Map<String, String> arguments) {
+    JoltTopic topic,
+    Function dataCallback,
+    Map<String, String> arguments,
+  ) {
     switch (topic) {
       case JoltTopic.nearbyUsers:
         {
@@ -128,7 +131,7 @@ class DatabaseService {
       });
       return true;
     } catch (e) {
-      print('error adding document ${e.message}');
+      print('Error: insertUser: ${e.message}');
       return false;
     }
   }
@@ -173,13 +176,13 @@ class DatabaseService {
           case DocumentChangeType.added:
             {
               nearbyUsers[doc.documentID] = currUser;
-              print('document added');
+              print('Added: subscribeToNearbyUsers: ${doc.documentID}');
             }
             break;
           case DocumentChangeType.removed:
             {
               nearbyUsers.remove(doc.documentID);
-              print('document removed');
+              print('Removed: subscribeToNearbyUsers: ${doc.documentID}');
             }
             break;
           case DocumentChangeType.modified:
@@ -187,12 +190,12 @@ class DatabaseService {
               if (user['location'] != myCurrentAddress) {
                 nearbyUsers.remove(doc.documentID);
               }
-              print('document modified');
+              print('Modified: subscribeToNearbyUsers: ${doc.documentID}');
             }
             break;
           default:
             {
-              print('default case');
+              print('Default: subscribeToNearbyUsers');
             }
             break;
         }
@@ -203,7 +206,9 @@ class DatabaseService {
 
   // register a callback to listen to chat data
   List<StreamSubscription<QuerySnapshot>> subscribeToChats(
-      Map<String, String> arguments, Function(Map<String, dynamic>) callback) {
+    Map<String, String> arguments,
+    Function(Map<String, dynamic>) callback,
+  ) {
     List<String> myConversations;
     List<StreamSubscription<QuerySnapshot>> chatSubs;
 
@@ -214,50 +219,63 @@ class DatabaseService {
       throw Exception('Missing required myConversations parameter');
     }
 
-    myConversations.forEach((String conversationId) {
-      var conversationStream = _databaseReference
-          .collection('conversations')
-          .document('messages')
-          .collection(conversationId)
-          .snapshots()
-          .listen((res) {
-        res.documentChanges.forEach((change) {
-          switch (change.type) {
-            case DocumentChangeType.added:
-              {
-                print('document added text: ' + change.document.data['text']);
-              }
-              break;
-            case DocumentChangeType.removed:
-              {
-                print('document removed' + change.document.data['text']);
-              }
-              break;
-            case DocumentChangeType.modified:
-              {
-                print('document modified' + change.document.data['text']);
-              }
-              break;
-            default:
-              {
-                print('default case');
-              }
-              break;
-          }
-        });
-      });
+    myConversations.forEach(
+      (String conversationId) {
+        var conversationStream = _databaseReference
+            .collection('conversations')
+            .document('messages')
+            .collection(conversationId)
+            .snapshots()
+            .listen(
+          (res) {
+            res.documentChanges.forEach(
+              (change) {
+                switch (change.type) {
+                  case DocumentChangeType.added:
+                    {
+                      print(
+                        'Added: subscribeToChats: ${change.document.documentID}',
+                      );
+                    }
+                    break;
+                  case DocumentChangeType.removed:
+                    {
+                      print(
+                        'Removed: subscribeToChats: ${change.document.documentID}',
+                      );
+                    }
+                    break;
+                  case DocumentChangeType.modified:
+                    {
+                      print(
+                        'Modified: subscribeToChats: ${change.document.documentID}',
+                      );
+                    }
+                    break;
+                  default:
+                    {
+                      print('Default: subscribeToChats');
+                    }
+                    break;
+                }
+              },
+            );
+          },
+        );
 
-      // Keep track of the stream subscriptions
-      chatSubs.add(conversationStream);
-    });
+        // Keep track of the stream subscriptions
+        chatSubs.add(conversationStream);
+      },
+    );
 
     return chatSubs;
   }
 
   // listen for waves from other users
   StreamSubscription<QuerySnapshot> subscribeToWave(
-      Map<String, String> arguments,
-      Function(List<JoltNotification>) callback) {
+    Map<String, String> arguments,
+    Function(List<JoltNotification>) callback,
+  ) {
     String userId;
     List<JoltNotification> waves = [];
     if (arguments.containsKey('userId')) {
@@ -283,25 +301,28 @@ class DatabaseService {
                   timestamp: change.document.data['timestamp'],
                   acked: change.document.data['acked'],
                 ));
-                print('document added text: ' +
-                    change.document.data['incomingUserId']);
+                print(
+                  'Added: subscribeToWaves: ${change.document.documentID}',
+                );
               }
               break;
             case DocumentChangeType.removed:
               {
-                print('document removed' +
-                    change.document.data['incomingUserId']);
+                print(
+                  'Removed: subscribeToWaves: ${change.document.documentID}',
+                );
               }
               break;
             case DocumentChangeType.modified:
               {
-                print('document modified' +
-                    change.document.data['incomingUserId']);
+                print(
+                  'Modified: subscribeToWaves: ${change.document.documentID}',
+                );
               }
               break;
             default:
               {
-                print('default case');
+                print('Default: subscribeToWaves');
               }
               break;
           }
@@ -313,8 +334,9 @@ class DatabaseService {
 
   // listen for winks from other users
   StreamSubscription<QuerySnapshot> subscribeToWink(
-      Map<String, String> arguments,
-      Function(List<JoltNotification>) callback) {
+    Map<String, String> arguments,
+    Function(List<JoltNotification>) callback,
+  ) {
     String userId;
     List<JoltNotification> winks = [];
     if (arguments.containsKey('userId')) {
@@ -340,25 +362,28 @@ class DatabaseService {
                   timestamp: change.document.data['timestamp'],
                   acked: change.document.data['acked'],
                 ));
-                print('document added text: ' +
-                    change.document.data['incomingUserId']);
+                print(
+                  'Added: subscribeToWink: ${change.document.documentID}',
+                );
               }
               break;
             case DocumentChangeType.removed:
               {
-                print('document removed' +
-                    change.document.data['incomingUserId']);
+                print(
+                  'Removed: subscribeToWink: ${change.document.documentID}',
+                );
               }
               break;
             case DocumentChangeType.modified:
               {
-                print('document modified' +
-                    change.document.data['incomingUserId']);
+                print(
+                  'Modified: subscribeToWink: ${change.document.documentID}',
+                );
               }
               break;
             default:
               {
-                print('default case');
+                print('Default: subscribeToWink');
               }
               break;
           }
@@ -370,8 +395,9 @@ class DatabaseService {
 
   // listen for waves and winks from other users
   StreamSubscription<QuerySnapshot> subscribeToInteractions(
-      Map<String, String> arguments,
-      Function(List<JoltNotification>) callback) {
+    Map<String, String> arguments,
+    Function(List<JoltNotification>) callback,
+  ) {
     String userId;
     List<JoltNotification> interactions = [];
     if (arguments.containsKey('userId')) {
@@ -404,25 +430,28 @@ class DatabaseService {
                       acked: change.document.data['acked'],
                     ),
                   );
-                  print('document added text: ' +
-                      change.document.data['incomingUserId']);
+                  print(
+                    'Added: subscribeToInteractions: ${change.document.documentID}',
+                  );
                 }
                 break;
               case DocumentChangeType.removed:
                 {
-                  print('document removed' +
-                      change.document.data['incomingUserId']);
+                  print(
+                    'Removed: subscribeToInteractions: ${change.document.documentID}',
+                  );
                 }
                 break;
               case DocumentChangeType.modified:
                 {
-                  print('document modified' +
-                      change.document.data['incomingUserId']);
+                  print(
+                    'Modified: subscribeToInteractions: ${change.document.documentID}',
+                  );
                 }
                 break;
               default:
                 {
-                  print('default case');
+                  print('Default: subscribeToInteractions');
                 }
                 break;
             }
@@ -434,11 +463,14 @@ class DatabaseService {
   }
 
   // send a wave to another user
-  Future<bool> wave(String idSource, String idTarget) async {
+  Future<bool> wave(
+    String idSource,
+    String idTarget,
+  ) async {
     try {
-      await _databaseReference
-          .collection('interactions/$idTarget/interactions')
-          .add(
+      var waveColl =
+          _databaseReference.collection('interactions/$idTarget/interactions');
+      await waveColl.add(
         {
           'incomingUserId': idSource,
           'timestamp': new DateTime.now().toString(),
@@ -447,14 +479,15 @@ class DatabaseService {
       );
       return true;
     } catch (e) {
-      print('Couldn\'t wave at: $idTarget $e');
+      print('Error: wave: ${e.message}');
       return false;
     }
   }
 
-  Future<User> getUser(String userId) async {
+  Future<User> getUser(
+    String userId,
+  ) async {
     User currUser;
-    print('id issss $userId');
     try {
       DocumentSnapshot doc =
           await _databaseReference.document('users/$userId').get();
@@ -472,18 +505,21 @@ class DatabaseService {
       );
     } catch (e) {
       currUser = null;
-      print('couldnt get user $e');
+      print('Error: getUser: ${e.message}');
     }
 
     return currUser;
   }
 
   // send a wink to another user
-  Future<bool> wink(String idSource, String idTarget) async {
+  Future<bool> wink(
+    String idSource,
+    String idTarget,
+  ) async {
     try {
-      await _databaseReference
-          .collection('interactions/$idTarget/interactions')
-          .add(
+      var interactionsColl =
+          _databaseReference.collection('interactions/$idTarget/interactions');
+      await interactionsColl.add(
         {
           'incomingUserId': idSource,
           'timestamp': new DateTime.now().toString(),
@@ -492,14 +528,17 @@ class DatabaseService {
       );
       return true;
     } catch (e) {
-      print('Couldn\'t wink at: $idTarget $e');
+      print('Error: wink: ${e.message}');
       return false;
     }
   }
 
   // send a text message to another user
   Future<bool> sendMessage(
-      String idSource, String idTarget, String text) async {
+    String idSource,
+    String idTarget,
+    String text,
+  ) async {
     try {
       String conversationId;
 
@@ -509,9 +548,9 @@ class DatabaseService {
         conversationId = '$idTarget+$idSource';
       }
 
-      await _databaseReference
-          .collection('conversations/$conversationId/messages')
-          .add(
+      var messagesColl = _databaseReference
+          .collection('conversations/$conversationId/messages');
+      await messagesColl.add(
         {
           'sentBy': idSource,
           'timestamp': new DateTime.now().toString(),
@@ -520,13 +559,16 @@ class DatabaseService {
       );
       return true;
     } catch (e) {
-      print('Couldn\'t wink at: $idTarget $e');
+      print('Error: wink: ${e.message}');
       return false;
     }
   }
 
   // adds a conversation id to be tracked by a user
-  Future<bool> addConversationId(String userId, String conversationId) async {
+  Future<bool> addConversationId(
+    String userId,
+    String conversationId,
+  ) async {
     try {
       await _databaseReference.collection('users').document(userId).updateData(
         {
@@ -535,7 +577,7 @@ class DatabaseService {
       );
       return true;
     } catch (e) {
-      print('error trying to add conversation id: $e.message');
+      print('Error: addConversationId: ${e.message}');
       return false;
     }
   }
@@ -556,7 +598,7 @@ class DatabaseService {
       callback(newAddress);
       return true;
     } catch (e) {
-      print('error updating user address $e.message');
+      print('Error: updateUserAddress: ${e.message}');
       callback('error');
       return false;
     }
@@ -581,7 +623,7 @@ class DatabaseService {
           '${place.subThoroughfare} ${place.thoroughfare}, ${place.locality}, ${place.administrativeArea}';
       return address;
     } catch (e) {
-      print(e);
+      print('Error: _getAddressFromLatLng: ${e.message}');
       return null;
     }
   }

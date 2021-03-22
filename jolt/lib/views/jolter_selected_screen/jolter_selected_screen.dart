@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import './jolt_app_bar.dart';
-import './size_config.dart';
-import './database_service.dart';
+import 'package:jolt/models/authentication_model.dart';
+import 'package:jolt/views/authentication_screen/login_signup_root.dart';
+
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/widgets/jolt_app_bar.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:provider/provider.dart';
 
 class JolterSelectedScreen extends StatelessWidget {
-  final String name;
-  final String userId;
-  final String pictureUrl;
-  final String myUserId;
-  final User currentUser;
+  static const routeName = 'jolter_selected';
+
+  final User selectedUser;
 
   JolterSelectedScreen({
-    @required this.name,
-    @required this.userId,
-    @required this.pictureUrl,
-    @required this.myUserId,
-    @required this.currentUser,
+    @required this.selectedUser,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (Provider.of<AuthenticationModel>(
+      context,
+      listen: false,
+    ).isNotSignedIn) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        LoginSignupRoot.routeName,
+        (route) => false,
+      );
+    }
+
+    User currentUser = Provider.of<AuthenticationModel>(
+      context,
+      listen: false,
+    ).currentUser;
+
     SizeConfig().init(context);
     return Scaffold(
       appBar: JoltAppBar(
@@ -39,7 +53,7 @@ class JolterSelectedScreen extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(100),
                 child: Image(
-                  image: CachedNetworkImageProvider(pictureUrl),
+                  image: CachedNetworkImageProvider(selectedUser.pictureUrl),
                 ),
               ),
             ),
@@ -48,7 +62,7 @@ class JolterSelectedScreen extends StatelessWidget {
               height: SizeConfig.blockSizeVertical * 10,
               alignment: Alignment.center,
               child: Text(
-                name,
+                selectedUser.name,
                 style:
                     TextStyle(fontSize: 40, fontFamily: 'Schoolbell-Regular'),
               ),
@@ -60,11 +74,10 @@ class JolterSelectedScreen extends StatelessWidget {
                 constraints: BoxConstraints.expand(),
                 child: RaisedButton(
                   onPressed: () {
-                    // wave(myUserId, userId)
-                    print('waved at ' + name);
-                    DatabaseService().wave(myUserId, userId);
-                    DatabaseService()
-                        .sendMessage(myUserId, userId, 'hey from marg');
+                    DatabaseService().wave(
+                      currentUser?.userId,
+                      selectedUser?.userId,
+                    );
                   },
                   color: Color(0xfff8f157),
                   child: Image(
@@ -81,8 +94,10 @@ class JolterSelectedScreen extends StatelessWidget {
                 constraints: BoxConstraints.expand(),
                 child: RaisedButton(
                   onPressed: () {
-                    print('winked at ' + name);
-                    DatabaseService().wink(myUserId, userId);
+                    DatabaseService().wink(
+                      currentUser?.userId,
+                      selectedUser?.userId,
+                    );
                   },
                   color: Color(0xfff8f157),
                   child: Image(

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:jolt/discovery_feed.dart';
-import 'package:jolt/notifications_screen.dart';
+import 'package:jolt/services/database_service.dart';
+import 'package:jolt/views/jolter_selected_screen/jolter_selected_screen.dart';
+import 'package:jolt/views/received_interaction_screen/received_interaction_screen.dart';
 import 'package:provider/provider.dart';
-import './root_page.dart';
-import './authentication.dart';
-import 'database_service.dart';
-import 'login_signup_root.dart';
-import 'models/interactions_model.dart';
-import 'models/nearby_users_model.dart';
+
+import 'package:jolt/views/discovery_screen/discovery_feed.dart';
+import 'package:jolt/views/notifications_screen/notifications_screen.dart';
+import 'package:jolt/views/authentication_screen/login_signup_root.dart';
+import 'package:jolt/models/authentication_model.dart';
+import 'package:jolt/models/interactions_model.dart';
+import 'package:jolt/models/nearby_users_model.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,44 +26,77 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => InteractionsModel(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => AuthenticationModel(),
+        ),
       ],
       child: MaterialApp(
-        home: RootPage(),
+        home: LoginSignupRoot(),
         onGenerateRoute: (settings) {
           final Arguments args = settings.arguments;
-          if (settings.name == NotificationsScreen.routeName) {
-            return MaterialPageRoute(
-              builder: (context) {
-                return NotificationsScreen(
-                  currentUser: args.currentUser,
-                  logoutCallback: args.logoutCallback,
+
+          switch (settings.name) {
+            case NotificationsScreen.routeName:
+              {
+                return MaterialPageRoute(
+                  settings: settings,
+                  builder: (context) {
+                    return NotificationsScreen();
+                  },
                 );
-              },
-            );
-          } else if (settings.name == DiscoveryFeed.routeName) {
-            return MaterialPageRoute(
-              builder: (context) {
-                return DiscoveryFeed(
-                  currentUser: args.currentUser,
-                  logoutCallback: args.logoutCallback,
+              }
+              break;
+            case DiscoveryFeed.routeName:
+              {
+                return MaterialPageRoute(
+                  settings: settings,
+                  builder: (context) {
+                    return DiscoveryFeed();
+                  },
                 );
-              },
-            );
-          } else if (settings.name == LoginSignupRoot.routeName) {
-            return MaterialPageRoute(
-              builder: (context) {
-                return LoginSignupRoot(
-                  auth: args.auth,
-                  loginCallback: args.loginCallback,
+              }
+              break;
+            case LoginSignupRoot.routeName:
+              {
+                return MaterialPageRoute(
+                  settings: settings,
+                  builder: (context) {
+                    return LoginSignupRoot();
+                  },
                 );
-              },
-            );
-          } else {
-            return MaterialPageRoute(
-              builder: (context) {
-                return RootPage();
-              },
-            );
+              }
+              break;
+            case JolterSelectedScreen.routeName:
+              {
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return JolterSelectedScreen(
+                      selectedUser: args.selectedUser,
+                    );
+                  },
+                );
+              }
+              break;
+            case ReceivedInteractionScreen.routeName:
+              {
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return ReceivedInteractionScreen(
+                      notification: args.notification,
+                    );
+                  },
+                );
+              }
+              break;
+            default:
+              {
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return LoginSignupRoot();
+                  },
+                );
+              }
+              break;
           }
         },
       ),
@@ -70,15 +105,11 @@ class MyApp extends StatelessWidget {
 }
 
 class Arguments {
-  final User currentUser;
-  final VoidCallback logoutCallback;
-  final Auth auth;
-  final VoidCallback loginCallback;
+  final User selectedUser;
+  final JoltNotification notification;
 
   Arguments({
-    this.currentUser,
-    this.logoutCallback,
-    this.auth,
-    this.loginCallback,
+    this.selectedUser,
+    this.notification,
   });
 }

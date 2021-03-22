@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import './size_config.dart';
+import 'package:jolt/views/utilities/size_config.dart';
 
 class LocationAvailable extends StatefulWidget {
   @override

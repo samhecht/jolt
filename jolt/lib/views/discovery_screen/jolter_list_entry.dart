@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import './size_config.dart';
-import './jolter_selected_screen.dart';
-import './database_service.dart';
+
+import 'package:jolt/views/utilities/size_config.dart';
+import 'package:jolt/views/jolter_selected_screen/jolter_selected_screen.dart';
+import 'package:jolt/services/database_service.dart';
+
+import 'package:jolt/main.dart';
 
 class JolterListEntry extends StatelessWidget {
   final User selectedUser;
@@ -17,16 +20,11 @@ class JolterListEntry extends StatelessWidget {
     SizeConfig().init(context);
     return InkWell(
       onTap: () {
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) => JolterSelectedScreen(
-              name: selectedUser.name,
-              userId: selectedUser.userId,
-              pictureUrl: selectedUser.pictureUrl,
-              myUserId: currentUser.userId,
-              currentUser: currentUser,
-            ),
+          JolterSelectedScreen.routeName,
+          arguments: Arguments(
+            selectedUser: selectedUser,
           ),
         );
       },
