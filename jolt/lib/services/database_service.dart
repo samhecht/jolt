@@ -59,7 +59,7 @@ class DatabaseService {
       case JoltTopic.nearbyUsers:
         {
           // Cancel nearby users subscription
-          if (_nearbyUsersSubscription != null) {
+          if (_nearbyUsersSubscription ?? false) {
             _nearbyUsersSubscription.cancel();
             _nearbyUsersSubscription = null;
           }
@@ -78,7 +78,7 @@ class DatabaseService {
         break;
       case JoltTopic.wave:
         {
-          if (_waveSubscription != null) {
+          if (_waveSubscription ?? false) {
             _waveSubscription.cancel();
             _waveSubscription = null;
           }
@@ -86,7 +86,7 @@ class DatabaseService {
         break;
       case JoltTopic.wink:
         {
-          if (_winkSubscription != null) {
+          if (_winkSubscription ?? false) {
             _winkSubscription.cancel();
             _winkSubscription = null;
           }
@@ -94,7 +94,7 @@ class DatabaseService {
         break;
       case JoltTopic.interactions:
         {
-          if (_interactionSubscription != null) {
+          if (_interactionSubscription ?? false) {
             _interactionSubscription.cancel();
             _interactionSubscription = null;
           }
@@ -570,7 +570,7 @@ class DatabaseService {
       }
 
       await addConversationId(idSource, conversationId);
-      await addConversationId(idSource, conversationId);
+      await addConversationId(idTarget, conversationId);
 
       var messagesColl = _databaseReference
           .collection('conversations/$conversationId/messages');
@@ -596,7 +596,11 @@ class DatabaseService {
     try {
       await _databaseReference.collection('users').document(userId).updateData(
         {
-          'conversationIds': FieldValue.arrayUnion([conversationId]),
+          'conversationIds': FieldValue.arrayUnion(
+            [
+              conversationId,
+            ],
+          ),
         },
       );
       return true;
@@ -683,7 +687,7 @@ class User {
       pictureUrl: old?.pictureUrl,
       location: old?.location,
       conversations: List<String>.from(
-        old != null ? old.conversations : [],
+        old ?? false ? old.conversations : [],
       ),
     );
   }
@@ -699,7 +703,7 @@ class User {
     @required this.location,
     this.conversations,
   }) {
-    if (this.conversations == null) {
+    if (this.conversations ?? true) {
       this.conversations = [];
     }
   }
@@ -784,7 +788,7 @@ class JoltConversation {
       conversationId: old?.conversationId,
       fromUser: User.from(old?.fromUser),
       messages: List<JoltTextMessage>.from(
-        old != null ? old.messages : [],
+        old ?? false ? old.messages : [],
       ),
     );
   }
@@ -817,10 +821,10 @@ class JoltTextMessage {
 
   // Compare function for sorting
   static int compare(JoltTextMessage a, JoltTextMessage b) {
-    if (a.timestamp == null ||
-        b.timestamp == null ||
-        a.timestamp.isEmpty ||
-        b.timestamp.isEmpty) {
+    if ((a.timestamp ?? true) ||
+        (b.timestamp ?? true) ||
+        (a.timestamp.isEmpty) ||
+        (b.timestamp.isEmpty)) {
       return 1;
     }
     var timeA = DateTime.parse(a.timestamp);

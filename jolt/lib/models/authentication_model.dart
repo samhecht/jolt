@@ -12,13 +12,13 @@ class AuthenticationModel extends ChangeNotifier {
 
   User get currentUser => _currentUser;
 
-  bool get isSignedIn => _currentUser != null;
+  bool get isSignedIn => _currentUser ?? false;
 
-  bool get isNotSignedIn => _currentUser == null;
+  bool get isNotSignedIn => _currentUser ?? true;
 
   Future<String> checkAuth() async {
     FirebaseUser currFirebaseUser = await auth.getCurrentUser();
-    if (currFirebaseUser != null) {
+    if (currFirebaseUser ?? false) {
       _currentUser = await DatabaseService().getUser(currFirebaseUser.uid);
       notifyListeners();
       return _currentUser?.userId;
@@ -32,7 +32,7 @@ class AuthenticationModel extends ChangeNotifier {
     String userId = await auth.signIn(email, password);
     User user = await DatabaseService().getUser(userId);
 
-    if (user != null) {
+    if (user ?? false) {
       _currentUser = user;
       notifyListeners();
       return _currentUser?.userId;

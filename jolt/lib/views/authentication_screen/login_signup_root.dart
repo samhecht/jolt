@@ -43,6 +43,7 @@ class _LoginSignupRootState extends State<LoginSignupRoot> {
     ).checkAuth();
 
     if (userId.isNotEmpty) {
+      // something like subscribe or start would probably be more clear
       Provider.of<InteractionsModel>(
         context,
         listen: false,

@@ -18,31 +18,31 @@ class ActiveChatListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<MessagesModel>(
-        builder: (context, conversations, child) => Container(
-              width: double.infinity,
-              height: SizeConfig.blockSizeVertical * 70,
-              child: ListView(
-                shrinkWrap: true,
-                reverse: true,
-                padding: const EdgeInsets.all(8),
-                controller: _controller,
-                // need to make this more readable
-                children:
-                    conversations.conversation(conversation?.conversationId) !=
-                            null
-                        ? conversations
-                            .conversation(conversation.conversationId)
-                            .messages
-                            .map(
-                            (message) {
-                              return new ActiveChatListEntry(
-                                message: message,
-                                currentUser: currentUser,
-                              );
-                            },
-                          ).toList()
-                        : [Container()],
-              ),
-            ));
+      builder: (context, conversations, child) => Container(
+        width: double.infinity,
+        height: SizeConfig.blockSizeVertical * 70,
+        child: ListView(
+          shrinkWrap: true,
+          reverse: true,
+          padding: const EdgeInsets.all(8),
+          controller: _controller,
+          // need to make this more readable
+          children:
+              conversations.conversation(conversation?.conversationId) ?? false
+                  ? conversations
+                      .conversation(conversation.conversationId)
+                      .messages
+                      .map(
+                      (message) {
+                        return new ActiveChatListEntry(
+                          message: message,
+                          currentUser: currentUser,
+                        );
+                      },
+                    ).toList()
+                  : [Container()],
+        ),
+      ),
+    );
   }
 }

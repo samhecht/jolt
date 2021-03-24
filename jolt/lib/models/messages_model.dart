@@ -60,7 +60,7 @@ class MessagesModel extends ChangeNotifier {
       _conversations[conversation.conversationId] = conversation;
     }
 
-    if (_conversations[conversation.conversationId].fromUser == null) {
+    if (_conversations[conversation.conversationId].fromUser ?? true) {
       List<String> ids = conversation.conversationId.split('+');
       String fromId = ids[0] == _userId ? ids[1] : ids[0];
 
