@@ -21,16 +21,20 @@ class DiscoveryFeed extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    if (Provider.of<AuthenticationModel>(
-      context,
-      listen: false,
-    ).isNotSignedIn) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        LoginSignupRoot.routeName,
-        (route) => false,
-      );
-    }
+    // if (Provider.of<AuthenticationModel>(
+    //   context,
+    //   listen: false,
+    // ).isNotSignedIn) {
+    //   Navigator.pushNamedAndRemoveUntil(
+    //     context,
+    //     LoginSignupRoot.routeName,
+    //     (route) => false,
+    //   );
+    // }
+    //
+    // Theres a problem with calling push/pop while in a push/pop call
+    // not sure why this should trigger because we should be logged in to get
+    // here
     return Scaffold(
       appBar: JoltAppBar(
         onPressed: () {},

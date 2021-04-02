@@ -28,7 +28,7 @@ class ActiveChatListView extends StatelessWidget {
           controller: _controller,
           // need to make this more readable
           children:
-              conversations.conversation(conversation?.conversationId) ?? false
+              conversations.conversation(conversation?.conversationId) != null
                   ? conversations
                       .conversation(conversation.conversationId)
                       .messages

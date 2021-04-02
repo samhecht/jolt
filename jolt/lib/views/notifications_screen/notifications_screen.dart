@@ -16,17 +16,6 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    if (Provider.of<AuthenticationModel>(
-      context,
-      listen: false,
-    ).isNotSignedIn) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        LoginSignupRoot.routeName,
-        (route) => false,
-      );
-    }
-
     return Scaffold(
       appBar: JoltAppBar(
         child: null,

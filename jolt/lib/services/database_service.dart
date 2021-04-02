@@ -59,7 +59,7 @@ class DatabaseService {
       case JoltTopic.nearbyUsers:
         {
           // Cancel nearby users subscription
-          if (_nearbyUsersSubscription ?? false) {
+          if (_nearbyUsersSubscription != null) {
             _nearbyUsersSubscription.cancel();
             _nearbyUsersSubscription = null;
           }
@@ -78,7 +78,7 @@ class DatabaseService {
         break;
       case JoltTopic.wave:
         {
-          if (_waveSubscription ?? false) {
+          if (_waveSubscription != null) {
             _waveSubscription.cancel();
             _waveSubscription = null;
           }
@@ -86,7 +86,7 @@ class DatabaseService {
         break;
       case JoltTopic.wink:
         {
-          if (_winkSubscription ?? false) {
+          if (_winkSubscription != null) {
             _winkSubscription.cancel();
             _winkSubscription = null;
           }
@@ -94,7 +94,7 @@ class DatabaseService {
         break;
       case JoltTopic.interactions:
         {
-          if (_interactionSubscription ?? false) {
+          if (_interactionSubscription != null) {
             _interactionSubscription.cancel();
             _interactionSubscription = null;
           }
@@ -687,7 +687,7 @@ class User {
       pictureUrl: old?.pictureUrl,
       location: old?.location,
       conversations: List<String>.from(
-        old ?? false ? old.conversations : [],
+        old != null ? old.conversations : [],
       ),
     );
   }
@@ -703,7 +703,7 @@ class User {
     @required this.location,
     this.conversations,
   }) {
-    if (this.conversations ?? true) {
+    if (this.conversations == null) {
       this.conversations = [];
     }
   }
@@ -788,7 +788,7 @@ class JoltConversation {
       conversationId: old?.conversationId,
       fromUser: User.from(old?.fromUser),
       messages: List<JoltTextMessage>.from(
-        old ?? false ? old.messages : [],
+        old != null ? old.messages : [],
       ),
     );
   }
@@ -821,10 +821,10 @@ class JoltTextMessage {
 
   // Compare function for sorting
   static int compare(JoltTextMessage a, JoltTextMessage b) {
-    if ((a.timestamp ?? true) ||
-        (b.timestamp ?? true) ||
-        (a.timestamp.isEmpty) ||
-        (b.timestamp.isEmpty)) {
+    if (a.timestamp == null ||
+        b.timestamp == null ||
+        a.timestamp.isEmpty ||
+        b.timestamp.isEmpty) {
       return 1;
     }
     var timeA = DateTime.parse(a.timestamp);

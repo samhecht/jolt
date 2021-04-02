@@ -22,18 +22,6 @@ class ActiveChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    // Probably wrap all of these widgets in consumer instead
-    if (Provider.of<AuthenticationModel>(
-      context,
-      listen: false,
-    ).isNotSignedIn) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        LoginSignupRoot.routeName,
-        (route) => false,
-      );
-    }
-
     User currentUser = Provider.of<AuthenticationModel>(
       context,
       listen: false,

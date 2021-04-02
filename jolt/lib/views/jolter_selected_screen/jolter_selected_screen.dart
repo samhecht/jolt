@@ -19,17 +19,6 @@ class JolterSelectedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<AuthenticationModel>(
-      context,
-      listen: false,
-    ).isNotSignedIn) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        LoginSignupRoot.routeName,
-        (route) => false,
-      );
-    }
-
     User currentUser = Provider.of<AuthenticationModel>(
       context,
       listen: false,
